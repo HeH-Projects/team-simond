@@ -50,6 +50,9 @@ testem.log
 # Gradle:
 .idea/**/gradle.xml
 .idea/**/libraries
+/.gradle
+/build
+
 
 # CMake
 cmake-build-debug/
