@@ -4,8 +4,8 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 
 @Entity
-@Table(name="customers")
-public class Customer {
+@Table(name="rooms")
+public class Room {
     @Id
     @GeneratedValue(generator="increment")
     @GenericGenerator(name="increment", strategy = "increment")
@@ -13,7 +13,7 @@ public class Customer {
 
     private String name;
 
-    public Customer(int id, String name){
+    public Room(int id, String name){
         this.id = id;
         this.name = name;
     }
