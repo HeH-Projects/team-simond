@@ -25,6 +25,7 @@ repositories {
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
-	runtime('org.postgresql:postgresql')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+	compile('org.hibernate:hibernate-core:5.2.11.Final')
+	compile group: 'postgresql', name: 'postgresql', version: '9.0-801.jdbc4'
 }
