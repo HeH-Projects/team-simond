@@ -1,5 +1,6 @@
 package be.heh.teamsimond.vetapp;
 
+import be.heh.teamsimond.vetapp.JPA.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.*;
 import org.springframework.ui.Model;
