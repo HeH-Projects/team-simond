@@ -1,11 +1,11 @@
-package be.heh.teamsimond.vetapp;
+package be.heh.teamsimond.vetapp.JPA;
 
 import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 
 @Entity
 @Table(name="doctor_time_slots")
-public class DoctorTimeSlot {
+public class DoctorTimeSlot extends VetappElement{
     @Id
     @GeneratedValue(generator="increment")
     @GenericGenerator(name="increment", strategy = "increment")
@@ -19,6 +19,8 @@ public class DoctorTimeSlot {
     private String friday;
     private String saturday;
     private String sunday;
+
+    public DoctorTimeSlot(){}
 
     public DoctorTimeSlot(int id, String monday, String tuesday, String wednesday, String thirsday, String friday, String saturday, String sunday){
         this.id = id;

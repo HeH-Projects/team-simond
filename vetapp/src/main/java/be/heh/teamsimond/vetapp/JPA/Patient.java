@@ -1,11 +1,11 @@
-package be.heh.teamsimond.vetapp;
+package be.heh.teamsimond.vetapp.JPA;
 
 import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 
 @Entity
 @Table(name="patients")
-public class Patient {
+public class Patient extends VetappElement{
     @Id
     @GeneratedValue(generator="increment")
     @GenericGenerator(name="increment", strategy = "increment")
@@ -14,8 +14,6 @@ public class Patient {
     @Column(name="customer_id")
     private int customerId;
 
-    private Customer owner;
-
     private String name;
     private int type;
     private int breed;
@@ -23,9 +21,11 @@ public class Patient {
     @Column(name="has_picture")
     private boolean hasPic;
 
+    public Patient(){}
+
     public Patient(int id, int customerId, String name, int type, int breed, boolean hasPic){
         this.id = id;
-        this.setCustomerId(customerId);
+        this.customerId = customerId;
         this.name = name;
         this.type = type;
         this.breed = breed;
@@ -46,7 +46,6 @@ public class Patient {
 
     public void setCustomerId(int customerId) {
         this.customerId = customerId;
-        //owner = Customers.getCustomer(customerId);  Customers = listes de clients en statique?
     }
 
     public String getName() {

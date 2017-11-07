@@ -1,11 +1,11 @@
-package be.heh.teamsimond.vetapp;
+package be.heh.teamsimond.vetapp.JPA;
 
 import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 
 @Entity
-@Table(name="doctors")
-public class Doctor {
+@Table(name="rooms")
+public class Room extends VetappElement{
     @Id
     @GeneratedValue(generator="increment")
     @GenericGenerator(name="increment", strategy = "increment")
@@ -13,13 +13,11 @@ public class Doctor {
 
     private String name;
 
-    @Column(name="default_room_id")
-    private int roomId;
+    public Room(){}
 
-    public Doctor(int id, String name, int roomId){
+    public Room(int id, String name){
         this.id = id;
         this.name = name;
-        this.roomId = roomId;
     }
 
     public int getId() {
@@ -36,13 +34,5 @@ public class Doctor {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getRoomId(){
-        return roomId;
-    }
-
-    public void setRoomId(int roomId){
-        this.roomId = roomId;
     }
 }
