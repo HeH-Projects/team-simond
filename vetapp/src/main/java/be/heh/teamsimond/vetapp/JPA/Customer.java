@@ -1,7 +1,7 @@
-package be.heh.teamsimond.vetapp;
+package be.heh.teamsimond.vetapp.JPA;
 
+import be.heh.teamsimond.vetapp.IVetappElement;
 import org.hibernate.annotations.GenericGenerator;
-
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
@@ -16,6 +16,13 @@ public class Customer implements IVetappElement {
     private int id;
 
     private String name;
+
+    public Customer(){}
+
+    public Customer(int id, String name){
+        this.id = id;
+        this.name = name;
+    }
 
     public int getId() {
         return id;

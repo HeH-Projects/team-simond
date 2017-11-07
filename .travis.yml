@@ -1,0 +1,6 @@
+language: java
+deploy:
+  provider: heroku
+  api_key:
+    secure: "13a3c238-7049-4575-b0cd-34225f86e5fe"
+app: projet-team-simond
