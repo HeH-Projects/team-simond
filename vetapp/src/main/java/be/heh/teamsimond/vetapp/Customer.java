@@ -6,14 +6,12 @@ import javax.persistence.*;
 
 @Entity
 @Table(name="customers")
-public class Customer {
+public class Customer extends VetappElement {
     @Id
     @GeneratedValue(generator="increment")
     @GenericGenerator(name="increment", strategy = "increment")
-    @Column(name="id")
     private int id;
 
-    @Column(name="name")
     private String name;
 
     public int getId() {

@@ -4,12 +4,9 @@
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
   <session-factory>
-    <property name="connection.url">jdbc:postgresql://localhost:1000/postgres</property>
+    <property name="connection.url">jdbc:postgresql://192.168.99.100:1000/postgres</property>
     <property name="connection.driver_class">org.postgresql.Driver</property>
     <property name="connection.username">postgres</property>
-    <!-- mapping resource="book.hbm.xml"/ -->
-
-    <!-- DB schema will be updated if needed -->
-    <!-- <property name="hbm2ddl.auto">update</property> -->
+    <mapping class="be.heh.teamsimond.vetapp.Customer"></mapping>
   </session-factory>
 </hibernate-configuration>
