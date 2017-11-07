@@ -10,7 +10,6 @@
       <mapping class="be.heh.teamsimond.vetapp.JPA.Appointment" />
     <mapping class="be.heh.teamsimond.vetapp.JPA.Customer" />
       <mapping class="be.heh.teamsimond.vetapp.JPA.Doctor" />
-      <mapping class="be.heh.teamsimond.vetapp.JPA.DoctorTimeSlot" />
       <mapping class="be.heh.teamsimond.vetapp.JPA.Patient" />
       <mapping class="be.heh.teamsimond.vetapp.JPA.Room" />
 
