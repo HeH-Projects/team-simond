@@ -5,6 +5,7 @@
 /tmp
 /app/**/*.js
 /app/**/*.js.map
+/src/main/webapp/node_modules
 
 # dependencies
 /node_modules
