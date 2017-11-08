@@ -7,9 +7,9 @@
     <property name="connection.url">jdbc:postgresql://localhost:1000/postgres</property>
     <property name="connection.driver_class">org.postgresql.Driver</property>
     <property name="connection.username">postgres</property>
-      <mapping class="be.heh.teamsimond.vetapp.JPA.Appointment" />
-    <mapping class="be.heh.teamsimond.vetapp.JPA.Customer" />
+      <mapping class="be.heh.teamsimond.vetapp.JPA.Customer" />
       <mapping class="be.heh.teamsimond.vetapp.JPA.Doctor" />
+      <mapping class="be.heh.teamsimond.vetapp.JPA.Appointment" />
       <mapping class="be.heh.teamsimond.vetapp.JPA.Patient" />
       <mapping class="be.heh.teamsimond.vetapp.JPA.Room" />
 
