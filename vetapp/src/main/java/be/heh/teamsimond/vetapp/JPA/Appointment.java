@@ -1,11 +1,18 @@
 package be.heh.teamsimond.vetapp.JPA;
 
+import be.heh.teamsimond.vetapp.IVetappElement;
+
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 @Entity
 @Table(name="appointments")
-public class Appointment extends VetappElement {
+@XmlRootElement
+public class Appointment implements IVetappElement {
     @EmbeddedId
     private AppointmentId id;
 
@@ -45,10 +52,26 @@ public class Appointment extends VetappElement {
     public void setType(int type) {
         this.type = type;
     }
+
+    public static IVetappElement generate(Map<String, String[]> parameters) {
+        try {
+            Appointment e = new Appointment();
+            e.setId(new AppointmentId(
+                    Integer.parseInt(parameters.get("patient_id")[0]),
+                    Integer.parseInt(parameters.get("doctor_id")[0]),
+                    (new SimpleDateFormat("yyyy-MM-dd_hh:mm")).parse(parameters.get("date")[0])));
+            e.setRoomId(Integer.parseInt(parameters.get("room_id")[0]));
+            e.setType(Integer.parseInt(parameters.get("type")[0]));
+            return e;
+        } catch (Exception e) {}
+        return null;
+    }
+    public void update(Map<String, String[]> parameters) {
+    }
 }
 
 @Embeddable
-class AppointmentId{
+class AppointmentId implements Serializable {
     @Column(name="patient_id")
     private int patientId;
 

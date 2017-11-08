@@ -52,9 +52,10 @@ public class Customer implements IVetappElement {
         return null;
     }
     public void update(Map<String, String[]> parameters) {
-        if (parameters.get("name").length == 1
-                && parameters.get("name")[0].length() > 0) {
-            this.name = parameters.get("name")[0];
-        }
+        try {
+            if (parameters.get("name")[0].length() > 0) {
+                this.name = parameters.get("name")[0];
+            }
+        } catch (Exception e) {}
     }
 }

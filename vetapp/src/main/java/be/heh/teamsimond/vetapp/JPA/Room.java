@@ -1,11 +1,15 @@
 package be.heh.teamsimond.vetapp.JPA;
 
+import be.heh.teamsimond.vetapp.IVetappElement;
 import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Map;
 
 @Entity
 @Table(name="rooms")
-public class Room extends VetappElement{
+@XmlRootElement
+public class Room implements IVetappElement{
     @Id
     @GeneratedValue(generator="increment")
     @GenericGenerator(name="increment", strategy = "increment")
@@ -34,5 +38,24 @@ public class Room extends VetappElement{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public static IVetappElement generate(Map<String, String[]> parameters) {
+        try {
+            String strName = parameters.get("name")[0];
+            if (strName != null && strName.length() > 0) {
+                Room e = new Room();
+                e.setName(strName);
+                return e;
+            }
+        } catch (Exception e) {}
+        return null;
+    }
+    public void update(Map<String, String[]> parameters) {
+        try {
+            if (parameters.get("name")[0].length() > 0) {
+                this.name = parameters.get("name")[0];
+            }
+        } catch (Exception e) {}
     }
 }

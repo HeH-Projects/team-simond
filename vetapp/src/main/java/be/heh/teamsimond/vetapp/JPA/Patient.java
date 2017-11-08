@@ -1,11 +1,15 @@
 package be.heh.teamsimond.vetapp.JPA;
 
+import be.heh.teamsimond.vetapp.IVetappElement;
 import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Map;
 
 @Entity
 @Table(name="patients")
-public class Patient extends VetappElement{
+@XmlRootElement
+public class Patient implements IVetappElement {
     @Id
     @GeneratedValue(generator="increment")
     @GenericGenerator(name="increment", strategy = "increment")
@@ -78,5 +82,23 @@ public class Patient extends VetappElement{
 
     public void setHasPic(boolean hasPic) {
         this.hasPic = hasPic;
+    }
+
+    public static IVetappElement generate(Map<String, String[]> parameters){
+        try {
+            String strName = parameters.get("name")[0];
+            if (strName != null && strName.length() > 0) {
+                Patient e = new Patient();
+                e.setName(strName);
+                e.setCustomerId(Integer.parseInt(parameters.get("customer_id")[0]));
+                e.setType(Integer.parseInt(parameters.get("type")[0]));
+                e.setBreed(Integer.parseInt(parameters.get("breed")[0]));
+                return e;
+            }
+        } catch(Exception e) {}
+        return null;
+    }
+    public void update(Map<String, String[]> parameters) {
+
     }
 }

@@ -1,5 +1,8 @@
 package be.heh.teamsimond.vetapp;
 
+import be.heh.teamsimond.vetapp.JPA.*;
+import org.json.JSONObject;
+import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.*;
 import org.springframework.ui.Model;
@@ -23,25 +26,30 @@ public class Controller {
     public Controller(IVetappElementRepository vetappElementRepository) {
         this.vetappElementRepository = vetappElementRepository;
         this.classMap.put("customer", Customer.class);
+        this.classMap.put("doctor", Doctor.class);
+        this.classMap.put("patient", Patient.class);
+        this.classMap.put("room", Room.class);
+        this.classMap.put("appointment", Appointment.class);
     }
 
-    private String objectToString(Object object, String strMarkup) {
+    private String objectToString(Object object, String strMarkup, Class c) {
         switch (strMarkup) {
             case "xml":
                 try {
-                    JAXBContext jaxbContext = JAXBContext.newInstance(VetappElements.class, Customer.class);
+                    JAXBContext jaxbContext = JAXBContext.newInstance(VetappElements.class, c);
                     Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
                     jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
                     StringWriter sw = new StringWriter();
                     jaxbMarshaller.marshal(object, sw);
                     return sw.toString();
-                } catch (Exception e) {
-                    return e.toString();
-                }
+                } catch (Exception e) {}
             case "json":
-                return "";
+                try {
+                    //JSONObject xmlJSONObj = XML.toJSONObject(objectToString(object, strMarkup, c));
+                    //return xmlJSONObj.toString(4);
+                } catch (Exception e) {}
             default:
-                return "markup invalide";
+                return "";
         }
     }
 
@@ -52,7 +60,7 @@ public class Controller {
                 int id = Integer.parseInt(strId);
                 List<IVetappElement> l = vetappElementRepository.findById(this.classMap.get(strClass), id);
                 if (l.size() == 1) {
-                    return objectToString(l.get(0), strMarkup);
+                    return objectToString(l.get(0), strMarkup, this.classMap.get(strClass));
                 }
             } catch (Exception e) {}
         }
@@ -62,7 +70,7 @@ public class Controller {
     @RequestMapping(value = "/{markup}/{class}s", method = RequestMethod.GET)
     public String getElements(@PathVariable("markup") String strMarkup, @PathVariable("class") String strClass, @RequestParam(value="name", required=false) String strName) {
         if (this.classMap.get(strClass) != null) {
-            return objectToString(new VetappElements(strName == null ? this.vetappElementRepository.findAll(this.classMap.get(strClass)) : this.vetappElementRepository.findByIncompleteName(classMap.get(strClass), strName)), strMarkup);
+            return objectToString(new VetappElements(strName == null ? this.vetappElementRepository.findAll(this.classMap.get(strClass)) : this.vetappElementRepository.findByIncompleteName(classMap.get(strClass), strName)), strMarkup, this.classMap.get(strClass));
         }
         return "";
     }

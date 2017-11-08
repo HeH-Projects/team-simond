@@ -3,17 +3,19 @@
         "-//Hibernate/Hibernate Configuration DTD//EN"
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
-  <session-factory>
-    <property name="connection.url">jdbc:postgresql://localhost:1000/postgres</property>
-    <property name="connection.driver_class">org.postgresql.Driver</property>
-    <property name="connection.username">postgres</property>
-      <mapping class="be.heh.teamsimond.vetapp.JPA.Customer" />
-      <mapping class="be.heh.teamsimond.vetapp.JPA.Doctor" />
-      <mapping class="be.heh.teamsimond.vetapp.JPA.Appointment" />
-      <mapping class="be.heh.teamsimond.vetapp.JPA.Patient" />
-      <mapping class="be.heh.teamsimond.vetapp.JPA.Room" />
+    <session-factory>
+        <property name="connection.url">jdbc:postgresql://ec2-54-75-247-119.eu-west-1.compute.amazonaws.com:5432/d4s0lgd1aocq0l?ssl=true&amp;sslfactory=org.postgresql.ssl.NonValidatingFactory</property>
+        <property name="connection.driver_class">org.postgresql.Driver</property>
+        <property name="connection.username">vnolsepehfqjpz</property>
+        <property name="connection.password">d7695654f091340cc510b1e3ea2f34ff07b85e0f60e00bad72d757d72b646827</property>
 
-    <!-- DB schema will be updated if needed -->
-    <!-- <property name="hbm2ddl.auto">update</property> -->
-  </session-factory>
+        <mapping class="be.heh.teamsimond.vetapp.JPA.Customer" />
+        <mapping class="be.heh.teamsimond.vetapp.JPA.Doctor" />
+        <mapping class="be.heh.teamsimond.vetapp.JPA.Appointment" />
+        <mapping class="be.heh.teamsimond.vetapp.JPA.Patient" />
+        <mapping class="be.heh.teamsimond.vetapp.JPA.Room" />
+
+        <!-- DB schema will be updated if needed -->
+        <!-- <property name="hbm2ddl.auto">update</property> -->
+    </session-factory>
 </hibernate-configuration>
