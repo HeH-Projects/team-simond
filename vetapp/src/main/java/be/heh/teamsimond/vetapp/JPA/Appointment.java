@@ -1,12 +1,15 @@
 package be.heh.teamsimond.vetapp.JPA;
 
 import be.heh.teamsimond.vetapp.IVetappElement;
-
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -15,42 +18,40 @@ import java.util.Map;
 public class Appointment implements IVetappElement {
     @EmbeddedId
     private AppointmentId id;
-
     @Column(name="room_id")
     private int roomId;
-
     private int type;
 
-    public Appointment(){}
-
-    public Appointment(AppointmentId id, int roomId, int type){
-        this.id = id;
-        this.roomId = roomId;
-        this.type = type;
-    }
-
+    @XmlTransient
     public AppointmentId getId() {
         return id;
     }
-
     public void setId(AppointmentId id) {
         this.id = id;
     }
-
     public int getRoomId() {
         return roomId;
     }
-
     public void setRoomId(int roomId) {
         this.roomId = roomId;
     }
-
     public int getType() {
         return type;
     }
-
     public void setType(int type) {
         this.type = type;
+    }
+    @XmlElement
+    public int getPatientId() {
+        return this.id.getPatientId();
+    }
+    @XmlElement
+    public int getDoctorId() {
+        return this.id.getDoctorId();
+    }
+    @XmlElement
+    public Date getDate() {
+        return this.id.getDate();
     }
 
     public static IVetappElement generate(Map<String, String[]> parameters) {
@@ -59,14 +60,28 @@ public class Appointment implements IVetappElement {
             e.setId(new AppointmentId(
                     Integer.parseInt(parameters.get("patient_id")[0]),
                     Integer.parseInt(parameters.get("doctor_id")[0]),
-                    (new SimpleDateFormat("yyyy-MM-dd_hh:mm")).parse(parameters.get("date")[0])));
-            e.setRoomId(Integer.parseInt(parameters.get("room_id")[0]));
-            e.setType(Integer.parseInt(parameters.get("type")[0]));
-            return e;
-        } catch (Exception e) {}
+                    (new SimpleDateFormat("yyyy-MM-dd'T'hh:mm")).parse(parameters.get("date")[0])));
+            List<String> l = e.update(parameters);
+            if (l.contains("room_id")
+                    && l.contains("type")) {
+                return e;
+            }
+        } catch (Exception e) {System.out.println(e);}
         return null;
     }
-    public void update(Map<String, String[]> parameters) {
+    public List<String> update(Map<String, String[]> parameters) {
+        List<String> l = new ArrayList<>();
+        try {
+            if (parameters.get("room_id") != null) {
+                this.setRoomId(Integer.parseInt(parameters.get("room_id")[0]));
+                l.add("room_id");
+            }
+            if (parameters.get("type") != null) {
+                this.setType(Integer.parseInt(parameters.get("type")[0]));
+                l.add("type");
+            }
+        } catch(Exception e) {}
+        return l;
     }
 }
 
@@ -74,15 +89,12 @@ public class Appointment implements IVetappElement {
 class AppointmentId implements Serializable {
     @Column(name="patient_id")
     private int patientId;
-
     @Column(name="doctor_id")
     private int doctorId;
-
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
     public AppointmentId(){}
-
     public  AppointmentId(int patientId, int doctorId, Date date){
         this.patientId = patientId;
         this.doctorId = doctorId;
@@ -92,23 +104,18 @@ class AppointmentId implements Serializable {
     public int getPatientId() {
         return patientId;
     }
-
     public void setPatientId(int patientId) {
         this.patientId = patientId;
     }
-
     public int getDoctorId() {
         return doctorId;
     }
-
     public void setDoctorId(int doctorId) {
         this.doctorId = doctorId;
     }
-
     public Date getDate() {
         return date;
     }
-
     public void setDate(Date date) {
         this.date = date;
     }

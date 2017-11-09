@@ -1,9 +1,11 @@
 package be.heh.teamsimond.vetapp;
 
+import be.heh.teamsimond.vetapp.JPA.Appointment;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -26,6 +28,17 @@ public class VetappElementRepositoryHibernate implements IVetappElementRepositor
         session.getTransaction().commit();
         session.close();
     }
+
+    private Session s_beginTransaction() {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        session.beginTransaction();
+        return session;
+    }
+    private void s_commitClose(Session session) {
+        session.getTransaction().commit();
+        session.close();
+    }
+
     public void save(IVetappElement c) {
         this.saveupdatedelete(c, 1);
     }
@@ -39,34 +52,58 @@ public class VetappElementRepositoryHibernate implements IVetappElementRepositor
     }
 
     public List<IVetappElement> findById(Class c, int id) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        session.beginTransaction();
+        Session session = this.s_beginTransaction();
         Query query = session.createQuery("FROM "+c.getName()+" c WHERE c.id = :id");
         query.setParameter( "id", id);
         List<IVetappElement> list = query.list();
-        session.getTransaction().commit();
-        session.close();
+        this.s_commitClose(session);
         return list;
     }
 
     public List<IVetappElement> findByIncompleteName(Class c, String str) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        session.beginTransaction();
-        Query query = session.createQuery("FROM "+c.getName()+" c WHERE c.name = :str");
-        query.setParameter( "str", str);
+        Session session = this.s_beginTransaction();
+        Query query = session.createQuery("FROM "+c.getName()+" c WHERE c.name LIKE :str");
+        query.setParameter( "str", str + "%");
         List<IVetappElement> list = query.list();
-        session.getTransaction().commit();
-        session.close();
+        this.s_commitClose(session);
         return list;
     }
 
     public List<IVetappElement> findAll(Class c) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        session.beginTransaction();
+        Session session = this.s_beginTransaction();
         Query query = session.createQuery("FROM "+c.getName()+" c");
         List<IVetappElement> list = query.list();
-        session.getTransaction().commit();
-        session.close();
+        this.s_commitClose(session);
+        return list;
+    }
+
+    public List<IVetappElement> findAppointmentInInterval(Date start, Date end) {
+        Session session = this.s_beginTransaction();
+        Query query = session.createQuery("FROM Appointment c WHERE c.id.date BETWEEN :start AND :end");
+        query.setParameter( "start", start);
+        query.setParameter("end", end);
+        List<IVetappElement> list = query.list();
+        this.s_commitClose(session);
+        return list;
+    }
+
+    public List<IVetappElement> findAppointmentByDate_Doctor(Date date, int doctorId) {
+        Session session = this.s_beginTransaction();
+        Query query = session.createQuery("FROM Appointment c WHERE c.id.date = :date AND c.id.doctorId = :doctor_id");
+        query.setParameter( "date", date);
+        query.setParameter("doctor_id", doctorId);
+        List<IVetappElement> list = query.list();
+        this.s_commitClose(session);
+        return list;
+    }
+
+    public List<IVetappElement> findAppointmentByDate_Patient(Date date, int patientId) {
+        Session session = this.s_beginTransaction();
+        Query query = session.createQuery("FROM Appointment c WHERE c.id.date = :date AND c.id.patientId = :patient_id");
+        query.setParameter( "date", date);
+        query.setParameter("patient_id", patientId);
+        List<IVetappElement> list = query.list();
+        this.s_commitClose(session);
         return list;
     }
 
