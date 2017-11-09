@@ -13,6 +13,11 @@ deploy:
   api_key: 
     secure: "6fc420b5-9e41-499a-93b1-7d6daf550c17"
   app: projet-team-simond
+  on:
+    branches:
+      only:
+      - develop
+      - master
   skip_cleanup: true
 
 before_script:
