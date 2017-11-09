@@ -22,7 +22,6 @@ repositories {
 	mavenCentral()
 }
 
-
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
@@ -53,9 +52,9 @@ task buildAngular(type:Exec) {
 	group = BasePlugin.BUILD_GROUP
 	// ng doesn't exist as a file in windows -> ng.cmd
 	if (System.getProperty("os.name").toUpperCase().contains("WINDOWS")){
-		commandLine "ng.cmd", "build"
+		commandLine "npm.cmd", "run", "build"
 	} else {
-		commandLine "ng", "build"
+        commandLine "npm", "run", "build"
 	}
 }
 

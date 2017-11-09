@@ -6,6 +6,7 @@
 /app/**/*.js
 /app/**/*.js.map
 /src/main/webapp/node_modules
+/src/main/resources/static/*
 
 # dependencies
 /node_modules
