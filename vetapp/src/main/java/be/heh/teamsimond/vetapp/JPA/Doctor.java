@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Entity
 @Table(name="doctors")
@@ -19,7 +20,6 @@ public class Doctor implements IVetappElement {
     @GeneratedValue(generator="increment")
     @GenericGenerator(name="increment", strategy = "increment")
     private int id;
-
     private String name;
     @Column(name="default_room_id")
     private int roomId;
@@ -30,22 +30,26 @@ public class Doctor implements IVetappElement {
     private byte[] friday;
     private byte[] saturday;
     private byte[] sunday;
-
-    public DoctorTimeSlots getTimeSlots() {
-        return timeSlots;
-    }
-
-    public void setTimeSlots(DoctorTimeSlots timeSlots) {
-        this.timeSlots = timeSlots;
-    }
-
     @Transient
     private DoctorTimeSlots timeSlots;
 
+    public DoctorTimeSlots getTimeSlots() {
+        this.setTimeSlots(new DoctorTimeSlots(this.getMonday(), this.getTuesday(), this.getWednesday(), this.getThursday(), this.getFriday(), this.getSaturday(), this.getSunday()));
+        return timeSlots;
+    }
+    public void setTimeSlots(DoctorTimeSlots timeSlots) {
+        this.timeSlots = timeSlots;
+    }
     public int getId() { return id;}
     public void setId(int id) { this.id = id; }
     public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public Boolean setName(String name) {
+        if (name.length() > 0) {
+            this.name = name;
+            return true;
+        }
+        return false;
+    }
     public int getRoomId() { return roomId; }
     public void setRoomId(int roomId) { this.roomId = roomId; }
     @XmlJavaTypeAdapter(DoctorByteAdapter.class)
@@ -72,140 +76,72 @@ public class Doctor implements IVetappElement {
 
 
     public static IVetappElement generate(Map<String, String[]> parameters) {
-        try {
-            String strName = parameters.get("name")[0];
-            if (strName != null && strName.length() > 0) {
-                Doctor e = new Doctor();
-                e.setName(strName);
-                e.setRoomId(Integer.parseInt(parameters.get("room_id")[0]));
-                e.setMonday(DatatypeConverter.parseHexBinary(parameters.get("monday")[0]));
-                e.setTuesday(DatatypeConverter.parseHexBinary(parameters.get("tuesday")[0]));
-                e.setWednesday(DatatypeConverter.parseHexBinary(parameters.get("wednesday")[0]));
-                e.setThursday(DatatypeConverter.parseHexBinary(parameters.get("thursday")[0]));
-                e.setFriday(DatatypeConverter.parseHexBinary(parameters.get("friday")[0]));
-                e.setSaturday(DatatypeConverter.parseHexBinary(parameters.get("saturday")[0]));
-                e.setSunday(DatatypeConverter.parseHexBinary(parameters.get("sunday")[0]));
-                e.timeSlots = new DoctorTimeSlots(e.getMonday(), e.getTuesday(), e.getWednesday(), e.getThursday(), e.getFriday(), e.getSaturday(), e.getSunday());
-                return e;
-            }
-        } catch (Exception e) {}
+        Doctor e = new Doctor();
+        List<String> l = e.update(parameters);
+        if (l.contains("name")
+                && l.contains("room_id")
+                && l.contains("monday")
+                && l.contains("tuesday")
+                && l.contains("wednesday")
+                && l.contains("thursday")
+                && l.contains("friday")
+                && l.contains("saturday")
+                && l.contains("sunday")) {
+            return e;
+        }
         return null;
     }
-    public void update(Map<String, String[]> parameters) {
-
-    }
-}
-
-class DoctorTimeSlots {
-    private TimeSlot[] monday;
-    private TimeSlot[] tuesday;
-    private TimeSlot[] wednesday;
-    private TimeSlot[] thursday;
-    private TimeSlot[] friday;
-    private TimeSlot[] saturday;
-    private TimeSlot[] sunday;
-
-    public TimeSlot[] getMonday() {
-        return monday;
-    }
-    public void setMonday(TimeSlot[] monday) {
-        this.monday = monday;
-    }
-    public TimeSlot[] getTuesday() {
-        return tuesday;
-    }
-    public void setTuesday(TimeSlot[] tuesday) {
-        this.tuesday = tuesday;
-    }
-    public TimeSlot[] getWednesday() {
-        return wednesday;
-    }
-    public void setWednesday(TimeSlot[] wednesday) {
-        this.wednesday = wednesday;
-    }
-    public TimeSlot[] getThursday() {
-        return thursday;
-    }
-    public void setThursday(TimeSlot[] thursday) {
-        this.thursday = thursday;
-    }
-    public TimeSlot[] getFriday() {
-        return friday;
-    }
-    public void setFriday(TimeSlot[] friday) {
-        this.friday = friday;
-    }
-    public TimeSlot[] getSaturday() {
-        return saturday;
-    }
-    public void setSaturday(TimeSlot[] saturday) {
-        this.saturday = saturday;
-    }
-    public TimeSlot[] getSunday() {
-        return sunday;
-    }
-    public void setSunday(TimeSlot[] sunday) {
-        this.sunday = sunday;
-    }
-
-    public TimeSlot[] byteToTimeSlot(byte[] bytes) {
-        List<int[]> list = new ArrayList<>();
-        int[] slot = new int[2];
-        for (int i = 0; i < 24; i++) {
-            if (((bytes[(i - i % 8) / 8] >> i % 8) & 1) == 1) {
-                if (slot[0] == -1) {
-                    slot[0] = i;
-                } else {
-                    slot[1] = i;
+    public List<String> update(Map<String, String[]> parameters) {
+        List<String> l = new ArrayList<>();
+        try {
+            if (parameters.get("name") != null) {
+                if (this.setName(parameters.get("name")[0])) {
+                    l.add("name");
                 }
-            } else if (slot[0] != -1) {
-                list.add(slot);
-                slot[0] = -1;
             }
-        }
-        TimeSlot[] r = new TimeSlot[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            r[i] = new TimeSlot(list.get(i)[0], list.get(i)[1]);
-        }
-        return r;
+            if (parameters.get("room_id") != null) {
+                this.setRoomId(Integer.parseInt(parameters.get("room_id")[0]));
+                l.add("room_id");
+            }
+            Pattern p = Pattern.compile("^[0-9A-F]{6}$");
+            if (parameters.get("monday") != null
+                    && p.matcher(parameters.get("monday")[0]).matches()) {
+                this.setMonday(DatatypeConverter.parseHexBinary(parameters.get("monday")[0]));
+                l.add("monday");
+            }
+            if (parameters.get("tuesday") != null
+                    && p.matcher(parameters.get("tuesday")[0]).matches()) {
+                this.setTuesday(DatatypeConverter.parseHexBinary(parameters.get("tuesday")[0]));
+                l.add("tuesday");
+            }
+            if (parameters.get("wednesday") != null
+                    && p.matcher(parameters.get("wednesday")[0]).matches()) {
+                this.setWednesday(DatatypeConverter.parseHexBinary(parameters.get("wednesday")[0]));
+                l.add("wednesday");
+            }
+            if (parameters.get("thursday") != null
+                    && p.matcher(parameters.get("thursday")[0]).matches()) {
+                this.setThursday(DatatypeConverter.parseHexBinary(parameters.get("thursday")[0]));
+                l.add("thursday");
+            }
+            if (parameters.get("friday") != null
+                    && p.matcher(parameters.get("friday")[0]).matches()) {
+                this.setFriday(DatatypeConverter.parseHexBinary(parameters.get("friday")[0]));
+                l.add("friday");
+            }
+            if (parameters.get("saturday") != null
+                    && p.matcher(parameters.get("saturday")[0]).matches()) {
+                this.setSaturday(DatatypeConverter.parseHexBinary(parameters.get("saturday")[0]));
+                l.add("saturday");
+            }
+            if (parameters.get("sunday") != null
+                    && p.matcher(parameters.get("sunday")[0]).matches()) {
+                this.setSunday(DatatypeConverter.parseHexBinary(parameters.get("sunday")[0]));
+                l.add("sunday");
+            }
+        } catch(Exception e) {}
+        return l;
     }
-    public byte[] timeSlotToByte(TimeSlot timeslot) {
-        return new byte[3];
-    }
-    public DoctorTimeSlots(byte[] monday, byte[] tuesday, byte[] wednesday, byte[] thursday, byte[] friday, byte[] saturday, byte[] sunday) {
-        this.monday = byteToTimeSlot(monday);
-        this.tuesday = byteToTimeSlot(tuesday);
-        this.wednesday = byteToTimeSlot(wednesday);
-        this.thursday = byteToTimeSlot(thursday);
-        this.friday = byteToTimeSlot(friday);
-        this.saturday = byteToTimeSlot(saturday);
-        this.sunday = byteToTimeSlot(sunday);
-    }
-    public DoctorTimeSlots() {}
-}
-
-class TimeSlot {
-    private int beginning;
-    private int end;
-
-    public int getBeginning() {
-        return beginning;
-    }
-    public void setBeginning(int beginning) {
-        this.beginning = beginning;
-    }
-    public int getEnd() {
-        return end;
-    }
-    public void setEnd(int end) {
-        this.end = end;
-    }
-
-    public TimeSlot(int beginning, int end) {
-        this.beginning = beginning;
-        this.end = end;
-    }
-    public TimeSlot(){}
 }
 
 class DoctorByteAdapter extends XmlAdapter<String, byte[]> {
@@ -215,5 +151,95 @@ class DoctorByteAdapter extends XmlAdapter<String, byte[]> {
 
     public String marshal(byte[] v) throws Exception {
         return DatatypeConverter.printHexBinary(v);
+    }
+}
+
+class DoctorTimeSlots {
+    private String[] monday;
+    private String[] tuesday;
+    private String[] wednesday;
+    private String[] thursday;
+    private String[] friday;
+    private String[] saturday;
+    private String[] sunday;
+
+    public String[] getMonday() {
+        return monday;
+    }
+    public void setMonday(String[] monday) {
+        this.monday = monday;
+    }
+    public String[] getTuesday() {
+        return tuesday;
+    }
+    public void setTuesday(String[] tuesday) {
+        this.tuesday = tuesday;
+    }
+    public String[] getWednesday() {
+        return wednesday;
+    }
+    public void setWednesday(String[] wednesday) {
+        this.wednesday = wednesday;
+    }
+    public String[] getThursday() {
+        return thursday;
+    }
+    public void setThursday(String[] thursday) {
+        this.thursday = thursday;
+    }
+    public String[] getFriday() {
+        return friday;
+    }
+    public void setFriday(String[] friday) {
+        this.friday = friday;
+    }
+    public String[] getSaturday() {
+        return saturday;
+    }
+    public void setSaturday(String[] saturday) {
+        this.saturday = saturday;
+    }
+    public String[] getSunday() {
+        return sunday;
+    }
+    public void setSunday(String[] sunday) {
+        this.sunday = sunday;
+    }
+
+    private String slotToString(int[] slot) {
+        return Integer.toString(slot[0]) + "-" + Integer.toString(slot[1] + 1);
+    }
+    public String[] byteToTimeSlot(byte[] bytes) {
+        List<String> list = new ArrayList<>();
+        int[] slot = new int[2];
+        slot[0] = -1;
+        slot[1] = -1;
+        for (int i = 0; i < 24; i++) {
+            if (((bytes[(i - (i % 8)) / 8] >> 7 - (i % 8)) & 1) == 1) { // si le bit en position i == 1
+                if (slot[0] == -1) { slot[0] = i; }
+                slot[1] = i;
+            } else if (slot[0] != -1) {
+                list.add(slotToString(slot));
+                slot[0] = -1;
+            }
+        }
+        if (slot[0] != -1) { // si le dernier bit est à 1
+            list.add(slotToString(slot));
+        }
+        String[] r = new String[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            r[i] = list.get(i);
+        }
+        return r;
+    }
+    public DoctorTimeSlots() {}
+    public DoctorTimeSlots(byte[] monday, byte[] tuesday, byte[] wednesday, byte[] thursday, byte[] friday, byte[] saturday, byte[] sunday) {
+        this.monday = byteToTimeSlot(monday);
+        this.tuesday = byteToTimeSlot(tuesday);
+        this.wednesday = byteToTimeSlot(wednesday);
+        this.thursday = byteToTimeSlot(thursday);
+        this.friday = byteToTimeSlot(friday);
+        this.saturday = byteToTimeSlot(saturday);
+        this.sunday = byteToTimeSlot(sunday);
     }
 }

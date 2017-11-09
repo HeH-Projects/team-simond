@@ -4,6 +4,8 @@ import be.heh.teamsimond.vetapp.IVetappElement;
 import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -14,91 +16,85 @@ public class Patient implements IVetappElement {
     @GeneratedValue(generator="increment")
     @GenericGenerator(name="increment", strategy = "increment")
     private int id;
-
     @Column(name="customer_id")
     private int customerId;
-
     private String name;
     private int type;
     private int breed;
-
     @Column(name="has_picture")
     private boolean hasPic;
-
-    public Patient(){}
-
-    public Patient(int id, int customerId, String name, int type, int breed, boolean hasPic){
-        this.id = id;
-        this.customerId = customerId;
-        this.name = name;
-        this.type = type;
-        this.breed = breed;
-        this.hasPic = hasPic;
-    }
 
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
-
     public int getCustomerId() {
         return customerId;
     }
-
     public void setCustomerId(int customerId) {
         this.customerId = customerId;
     }
-
     public String getName() {
         return name;
     }
-
-    public void setName(String name) {
-        this.name = name;
+    public Boolean setName(String name) {
+        if (name.length() > 0) {
+            this.name = name;
+            return true;
+        }
+        return false;
     }
-
     public int getType() {
         return type;
     }
-
     public void setType(int type) {
         this.type = type;
     }
-
     public int getBreed() {
         return breed;
     }
-
     public void setBreed(int breed) {
         this.breed = breed;
     }
-
     public boolean isHasPic() {
         return hasPic;
     }
-
     public void setHasPic(boolean hasPic) {
         this.hasPic = hasPic;
     }
 
     public static IVetappElement generate(Map<String, String[]> parameters){
         try {
-            String strName = parameters.get("name")[0];
-            if (strName != null && strName.length() > 0) {
-                Patient e = new Patient();
-                e.setName(strName);
-                e.setCustomerId(Integer.parseInt(parameters.get("customer_id")[0]));
-                e.setType(Integer.parseInt(parameters.get("type")[0]));
-                e.setBreed(Integer.parseInt(parameters.get("breed")[0]));
+            Patient e = new Patient();
+            e.setCustomerId(Integer.parseInt(parameters.get("customer_id")[0]));
+            List<String> l = e.update(parameters);
+            if (l.contains("name")
+                    && l.contains("type")
+                    && l.contains("breed")) {
                 return e;
             }
         } catch(Exception e) {}
         return null;
     }
-    public void update(Map<String, String[]> parameters) {
-
+    public List<String> update(Map<String, String[]> parameters) {
+        List<String> l = new ArrayList<>();
+        try {
+            if (parameters.get("name") != null) {
+                if (this.setName(parameters.get("name")[0])) {
+                    l.add("name");
+                }
+            }
+            if (parameters.get("type") != null) {
+                this.setType(Integer.parseInt(parameters.get("type")[0]));
+                l.add("type");
+            }
+            if (parameters.get("breed") != null) {
+                this.setBreed(Integer.parseInt(parameters.get("breed")[0]));
+                l.add("breed");
+            }
+        } catch(Exception e) {}
+        return l;
     }
 }

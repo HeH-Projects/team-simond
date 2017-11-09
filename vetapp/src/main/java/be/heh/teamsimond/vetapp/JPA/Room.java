@@ -4,6 +4,8 @@ import be.heh.teamsimond.vetapp.IVetappElement;
 import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -14,48 +16,42 @@ public class Room implements IVetappElement{
     @GeneratedValue(generator="increment")
     @GenericGenerator(name="increment", strategy = "increment")
     private int id;
-
     private String name;
-
-    public Room(){}
-
-    public Room(int id, String name){
-        this.id = id;
-        this.name = name;
-    }
 
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
-
     public String getName() {
         return name;
     }
-
-    public void setName(String name) {
-        this.name = name;
+    public Boolean setName(String name) {
+        if (name.length() > 0) {
+            this.name = name;
+            return true;
+        }
+        return false;
     }
 
     public static IVetappElement generate(Map<String, String[]> parameters) {
-        try {
-            String strName = parameters.get("name")[0];
-            if (strName != null && strName.length() > 0) {
-                Room e = new Room();
-                e.setName(strName);
-                return e;
-            }
-        } catch (Exception e) {}
+        Room e = new Room();
+        List<String> l = e.update(parameters);
+        if (l.contains("name")) {
+            return e;
+        }
         return null;
     }
-    public void update(Map<String, String[]> parameters) {
+    public List<String> update(Map<String, String[]> parameters) {
+        List<String> l = new ArrayList<>();
         try {
-            if (parameters.get("name")[0].length() > 0) {
-                this.name = parameters.get("name")[0];
+            if (parameters.get("name") != null) {
+                if (this.setName(parameters.get("name")[0])) {
+                    l.add("name");
+                }
             }
-        } catch (Exception e) {}
+        } catch(Exception e) {}
+        return l;
     }
 }
