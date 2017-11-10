@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.*;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
+@EnableResourceServer
+@RequestMapping("/api")
 @EnableAutoConfiguration
 public class Controller {
     private IVetappElementRepository vetappElementRepository;
@@ -29,7 +32,6 @@ public class Controller {
         this.classMap.put("room", Room.class);
         this.classMap.put("appointment", Appointment.class);
     }
-
 
     @RequestMapping(value = "/create/{class}", method = RequestMethod.POST)
     public String createElement(@PathVariable("class") String strClass,
