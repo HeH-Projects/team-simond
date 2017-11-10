@@ -1,13 +1,9 @@
 <nav class='navbar navbar-default'>
   <div class='container-fluid'>
-      <a class='navbar-brand'></a>
       <ul class='nav navbar-nav'>
-          <li><a [routerLink]="['/users/doctors']">Doctors</a></li>
-          <li><a [routerLink]="['/users/clients']">Clients</a></li>
-          <li><a [routerLink]="['/users/rooms']">Rooms</a></li>
+          <li class="btn"><a [routerLink]="['/users/doctors']" ><img class='logo' src='./../../../assets/doctor.svg' alt='doctor' >Doctors</a></li>
+          <li class="btn"><a [routerLink]="['/users/clients']"><img class='logo' src='./../../../assets/customer.svg' alt='customer' >Clients</a></li>
+          <li class="btn"><a [routerLink]="['/users/rooms']"><img class='logo' src='./../../../assets/room.svg' alt='room' >Rooms</a></li>
       </ul>
   </div>
 </nav>
-<div class='container'>
-  <router-outlet></router-outlet>
-</div>
