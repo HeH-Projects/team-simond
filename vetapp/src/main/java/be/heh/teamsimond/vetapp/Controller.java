@@ -89,6 +89,13 @@ public class Controller {
             case "json":
                 try {
                     JSONObject xmlJSONObj = XML.toJSONObject(objectToString(object, "xml", c));
+                    if (object instanceof VetappElements) {
+                        xmlJSONObj = (JSONObject) xmlJSONObj.get("vetappElements");
+                        String[] tmp = c.toString().toLowerCase().split("\\.");
+                        String key = tmp[tmp.length - 1];
+                        xmlJSONObj.put(key + "s", xmlJSONObj.has(key) ? xmlJSONObj.get(key) : new String[0]);
+                        xmlJSONObj.remove(key);
+                    }
                     return xmlJSONObj.toString(4);
                 } catch (Exception e) {}
                 break;
