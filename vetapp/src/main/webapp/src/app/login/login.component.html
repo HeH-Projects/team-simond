@@ -1,35 +1,43 @@
-<form (ngSubmit)="submit(loginForm)" 
-    novalidate
-    #loginForm="ngForm">
-    <div>
-        <label for="login">Login : </label>
-        <input type="text" 
-        required 
-        minlength="3"
-        [(ngModel)]=user.login
-        name="login"
-        #loginVar="ngModel">
-        <span *ngIf="(loginVar.touched || loginVar.dirty) && loginVar.errors">
-            <span> Errors </span>
-        </span>
-    
-    </div>
-    <div>
-        <label for="password">Password : </label>
-        <input type="password" 
-        [(ngModel)]=user.password
-        name="password"
-        #passwordVar="ngModel">
-        <span *ngIf="(passwordVar.touched || passwordVar.dirty) && passwordVar.errors">
-            <span> Errors </span>
-        </span>
-    
-    </div>
-    <input type="submit"
-        [disabled]="!loginForm.valid">
-    
-</form>
-<br><br><br>
+<div class="container">
+    <form (ngSubmit)="submit(loginForm)" 
+        novalidate
+        #loginForm="ngForm">
+        <div>
+            <label for="login">Login : </label>
+            <input type="text" 
+                required 
+                [(ngModel)]=user.login
+                name="login"
+                #loginVar="ngModel"
+                value="secretaire"/>
+            <span *ngIf="(loginVar.touched || loginVar.dirty) && loginVar.errors">
+                <span *ngIf="firstNameVar.errors.required">
+                    Please enter the login.
+                </span>
+            </span>
+        
+        </div>
+        <div>
+            <label for="password">Password : </label>
+            <input type="password" 
+                required
+                [(ngModel)]=user.password
+                name="password"
+                #passwordVar="ngModel"
+                value="Test123*"/>
+            <span *ngIf="(passwordVar.touched || passwordVar.dirty) && passwordVar.errors">
+                <span *ngIf="firstNameVar.errors.required">
+                    Please enter the password.
+                </span>
+            </span>
+        
+        </div>
+        <input type="submit"
+            [disabled]="!loginForm.valid">
+        
+    </form>
+</div>
+<!--<br><br><br>
 
 <button (click)="callDoctor()">callDoctor</button>
 <div *ngIf="doctor" innerHTML="{{doctor.name}}"></div>
@@ -39,4 +47,4 @@
 <br>Valid: {{ loginForm.valid }}
 <br>Value: {{ loginForm.value | json }}
 <br>Login : {{user.login}}
-<br>Password : {{user.password}}
+<br>Password : {{user.password}}-->

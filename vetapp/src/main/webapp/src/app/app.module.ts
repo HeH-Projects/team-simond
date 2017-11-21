@@ -4,6 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { HttpModule } from '@angular/http';
 import { RouterModule } from '@angular/router';
 import { FormsModule }   from '@angular/forms';
+import { TokenService } from './service/token.service'
 
 import { AppComponent } from './app.component';
 import { AppointmentComponent } from './appointment/appointment.component'
@@ -29,6 +30,9 @@ import { LoginComponent } from './login/login.component';
     HttpModule,
     FormsModule
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  providers:[
+    TokenService
+  ]
 })
 export class AppModule { }
