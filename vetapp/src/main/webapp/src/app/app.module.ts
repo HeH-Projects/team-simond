@@ -10,12 +10,14 @@ import { AppComponent } from './app.component';
 import { AppointmentComponent } from './appointment/appointment.component'
 import { ListingModule } from './listing/listing.module';
 import { LoginComponent } from './login/login.component';
+import { DoctorIdPipe } from './appointment/doctorid.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    AppointmentComponent
+    AppointmentComponent,
+    DoctorIdPipe
   ],
   imports: [
     BrowserModule,

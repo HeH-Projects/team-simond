@@ -11,11 +11,10 @@
                 #loginVar="ngModel"
                 value="secretaire"/>
             <span *ngIf="(loginVar.touched || loginVar.dirty) && loginVar.errors">
-                <span *ngIf="firstNameVar.errors.required">
+                <span *ngIf="loginVar.errors.required">
                     Please enter the login.
                 </span>
             </span>
-        
         </div>
         <div>
             <label for="password">Password : </label>
@@ -26,12 +25,14 @@
                 #passwordVar="ngModel"
                 value="Test123*"/>
             <span *ngIf="(passwordVar.touched || passwordVar.dirty) && passwordVar.errors">
-                <span *ngIf="firstNameVar.errors.required">
+                <span *ngIf="passwordVar.errors.required">
                     Please enter the password.
                 </span>
             </span>
-        
         </div>
+        <span *ngIf="badLogin">
+            Bad login and password.
+        </span>
         <input type="submit"
             [disabled]="!loginForm.valid">
         

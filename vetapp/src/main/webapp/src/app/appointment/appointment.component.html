@@ -1,1 +1,149 @@
-<p> home here </p>
+<style>
+* {
+    padding: 0;
+    margin: 0;
+}
+.vetCal {
+    width: 100%;
+    height: calc(100vh - 72px);
+}
+.vetCal *{
+    box-sizing: initial;
+}
+.vetCal-cal,
+.vetCal-table {
+    display:flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 100%;
+    height: 100%;
+    overflow:hidden;
+}
+.vetCal-sidebar {
+    width: 59px;
+    float: left;
+        height: 100%;
+        overflow: hidden;
+    text-align: center;
+    border-right: 1px solid;
+}
+.vetCal-hours {
+    height: calc(100% - 4rem);
+}
+.vetCal-hours div {
+    font-size:small;
+}
+.vetCal-hours > div > div:not(:first-child) {
+    color:#999;
+}
+.vetCal-cal {
+    float: right;	
+}
+.vetCal-cal {
+    width: calc(100% - 60px);
+}
+.vetCal-cal > div,
+.vetCal-table > div {
+    flex: 1;
+}
+.vetCal-cal > div:not(:last-child),
+.vetCal-table > div:not(:last-child) {
+    border-right: solid 1px;
+}
+.vetCal h3, .vetCal h4 {
+    text-align:center;
+    height: calc(2rem - 1px);
+    line-height: 2rem;
+    border-bottom: 1px solid;
+    overflow:hidden;
+    font-size: 1rem;
+}
+.vetCal-table,
+.vetCal-planning {
+    height: calc(100% - 2rem);
+}
+.vetCal-planning {
+    position: relative;
+}
+.vetCal .vetCal-appointment {
+    width: 100%;
+    background: red;
+    position: absolute;
+    top: 0;
+    padding: 4px 8px 4px 12px;
+    box-sizing:border-box;
+    box-shadow:inset 4px 0 0 rgba(0,0,0,.2);
+}
+.vetCal-background {
+    height: calc(25% - 1px);
+    border-bottom: 1px solid #ccc;
+    background:#ddd;
+}
+.vetCal-background:nth-child(2n) {
+    background:#eee;
+}
+.vetCal-background:last-child {
+    border-bottom: 0;
+}
+.vetCal-background-container {
+    box-shadow: inset 0 -1px 0 #bbb;
+}
+.vetCal nav {
+    height: 4rem;
+}
+.vetCal-cal.week .vetCal-appointment {
+    font-size: 0;
+}
+.vetCal .today h3 {
+    background-color: #eee;
+}
+</style>
+<div class="vetCal">	
+    <div class="vetCal-sidebar">
+        <nav>
+            <button (click)="changeView()">{{weekView ? "DayView" : "WeekView"}}</button>
+            <button (click)="changeDate(false)">&lt;</button>
+            <button (click)="today()">O</button>
+            <button (click)="changeDate(true)">&gt;</button>
+        </nav>
+        <div class="vetCal-hours">
+            <div *ngFor="let n of range(closingHour - openingHour)"
+            [style.height.%]="100 / (closingHour - openingHour)"
+            class="vetCal-background-container">
+                <div class="vetCal-background" *ngFor="let i of range(4)">
+                    {{ ("0" + (n + openingHour)).slice(-2) }} : {{ ("0" + 15 * i).slice(-2) }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="vetCal-cal {{weekView ? 'week' : 'day'}}">
+        <div *ngFor="let day of days" class="{{day.isToday ? 'today' : ''}}">
+            <h3>{{dateToTitle(day.date)}}</h3>
+            <div class="vetCal-table">
+                <div *ngFor="let doctor of doctors">
+                    <h4>{{doctor.name}}</h4>
+                    <div class="vetCal-planning">
+                        <div class="vetCal-appointment"
+                            *ngFor="let appointment of day?.appointments | doctorId:doctor.id"
+                            (click)="updateAppointment(appointment)"
+							[style.background-color]="roomColors[appointment.roomId % roomColors.length][0]"
+							[style.box-shadow]="'inset 4px 0 0' + roomColors[appointment.roomId % roomColors.length][1]"
+							[style.color]="roomColors[appointment.roomId % roomColors.length][1]"
+							[style.height.%]="100 * appointmentDurations[appointment.type] / (closingHour - openingHour)"
+							[style.top.%]="100 * ((stringToDate(appointment.date).getHours() + (stringToDate(appointment.date).getMinutes() / 60)) - openingHour) / (closingHour - openingHour)">
+                            {{roomNames[appointment.roomId]}}
+                        </div>
+                        <div *ngFor="let n of range(closingHour - openingHour)"
+                            [style.height]="(100 / (closingHour - openingHour))+'%'"
+                            class="vetCal-background-container">
+                            <ng-container *ngIf="inSlot(doctor, day, n + openingHour)">
+                                <div class="vetCal-background" *ngFor="let i of range(4)"
+                                    (click)="createAppointment(doctor, day, n + openingHour, i)"></div>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

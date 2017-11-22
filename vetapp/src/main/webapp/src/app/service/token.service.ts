@@ -11,7 +11,7 @@ export class TokenService{
 
     constructor(private _http: Http){ }
 
-    getMyToken(login, mdp, callback){
+    getNewToken(login, mdp, callback){
         this.login = login;
         this.password = mdp;
 
@@ -31,8 +31,8 @@ export class TokenService{
                             callback(data);
                         }
                     },(err :HttpErrorResponse) => {
-                        if(this.data){
-                            
+                        if(err.status == 401){
+                            callback("error");
                         }
                     });
     }
@@ -56,9 +56,13 @@ export class TokenService{
                         }else{
                             console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
                             if(err.status == 401){
-                                this.getMyToken(this.login, this.password, null);
+                                this.getNewToken(this.login, this.password, null);
                             }
                         }
                     });
+    }
+
+    getMyToken(){
+        return this.data.access_token;
     }
 }

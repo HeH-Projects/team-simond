@@ -19,6 +19,7 @@ export class LoginComponent {
     doctor : any = null;
     user : User = new User();
     loginForm : NgForm;
+    badLogin : boolean = false;
 
     constructor(private _router : Router, private _tokenService : TokenService){ }
 
@@ -26,8 +27,12 @@ export class LoginComponent {
         this.loginForm = loginForm
         //console.log(loginForm.form);
         //console.log('Saved: ' + JSON.stringify(loginForm.value));
-        this._tokenService.getMyToken(this.user.login, this.user.password, function(token){
-            this._router.navigate(['/home']);
+        this._tokenService.getNewToken(this.user.login, this.user.password, function(token){
+            if(token == "error"){
+                this.badLogin = true;
+            }else{
+                this._router.navigate(['/home']);
+            }
         }.bind(this));
     }
 
