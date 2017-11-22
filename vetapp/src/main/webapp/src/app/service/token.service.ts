@@ -22,7 +22,7 @@ export class TokenService{
         headers.append("Content-Type", "application/x-www-form-urlencoded");
         console.log(headers);
         const options = new RequestOptions({headers: headers});
-        return this._http.post('http://localhost:8080/oauth/token?grant_type=password&username='+login+'&password='+mdp, this.data, options)
+        return this._http.post('/oauth/token?grant_type=password&username='+login+'&password='+mdp, this.data, options)
                     .map((res: Response) => res.json())
                     .subscribe(data => {
                         this.data = data;
@@ -45,7 +45,7 @@ export class TokenService{
         headers.append("Content-Type", "application/x-www-form-urlencoded");
         console.log(headers);
         const options = new RequestOptions({headers: headers});
-        return this._http.post('http://localhost:8080/oauth/token?grant_type=refresh_token&refresh_token='+this.data.refresh_token, this.data, options)
+        return this._http.post('/oauth/token?grant_type=refresh_token&refresh_token='+this.data.refresh_token, this.data, options)
                     .map((res: Response) => res.json())
                     .subscribe(data => {
                         this.data = data;

@@ -9,7 +9,7 @@ import { DoctorIdPipe } from './doctorid.component';
     templateUrl: './appointment.component.html'
 })
 export class AppointmentComponent {
-    apisrv : string = "http://localhost:8080";
+    apisrv : string = "";
     openingHour : number = 8;
     closingHour : number = 17;
     //date = new Date();
