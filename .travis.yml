@@ -1,6 +1,31 @@
 language: java
+
+notifications:
+  email: false
+
+branches:
+  only:
+  - develop
+  - master
+
 deploy:
-  provider: heroku
-  api_key:
-    secure: "13a3c238-7049-4575-b0cd-34225f86e5fe"
-app: projet-team-simond
+  - provider: heroku
+    api_key: 
+      secure: "6fc420b5-9e41-499a-93b1-7d6daf550c17"
+    app: projet-team-simond
+    on:
+      branch:
+        develop
+    skip_cleanup: true
+
+  - provider: heroku
+    api_key: 
+      secure: "6fc420b5-9e41-499a-93b1-7d6daf550c17"
+    app: projet-team-simond
+    on:
+      branch:
+        master
+    skip_cleanup: true
+
+before_script:
+  - cd ./vetapp

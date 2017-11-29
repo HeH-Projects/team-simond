@@ -1,0 +1,32 @@
+img{
+    width:40px;
+    margin-right:10px;
+    margin-top:0px;
+}
+.btn{
+    width:30%;
+    border-color: rgb(199, 198, 198);
+    background-color:white ;
+}
+.navbar-nav{
+    display: flex;
+    justify-content: space-around;
+    width:100%;
+    background-color: white ;
+    border-color: white;
+}
+nav{
+    width:100%;
+    background-color: white ;
+    border-color: white;
+}
+li{
+    width:200px;
+    height:50px;
+    margin:5px;
+    border-color: rgb(199, 198, 198);
+}
+a, img{
+    position: relative;
+    top:-8px;
+}

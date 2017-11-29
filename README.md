@@ -11,9 +11,9 @@ This repository is a temporary project with training as the main purpose.
 The content is a website based on angular using RestAPI made with spring framework.
 Le contenu est un site fait avec le framework Java Spring.
 
-A simple appointments' handling app for a vet hospotial.
+A simple appointments' handling app for a vet hospital.
 
-| Collaborator      | function      |
+| Collaborator      | Function      |
 |-------------------|---------------|
 | ##### [Renaud](https://github.com/ren0d1)      | Developer     |
 | ##### [Florian](https://github.com/FlorianSimond)     | Scrum master  |

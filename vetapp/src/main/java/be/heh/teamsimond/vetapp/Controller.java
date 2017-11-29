@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.*;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
+@EnableResourceServer
+@RequestMapping("/api")
 @EnableAutoConfiguration
 public class Controller {
     private IVetappElementRepository vetappElementRepository;
@@ -29,7 +32,6 @@ public class Controller {
         this.classMap.put("room", Room.class);
         this.classMap.put("appointment", Appointment.class);
     }
-
 
     @RequestMapping(value = "/create/{class}", method = RequestMethod.POST)
     public String createElement(@PathVariable("class") String strClass,
@@ -87,6 +89,13 @@ public class Controller {
             case "json":
                 try {
                     JSONObject xmlJSONObj = XML.toJSONObject(objectToString(object, "xml", c));
+                    if (object instanceof VetappElements) {
+                        xmlJSONObj = (JSONObject) xmlJSONObj.get("vetappElements");
+                        String[] tmp = c.toString().toLowerCase().split("\\.");
+                        String key = tmp[tmp.length - 1];
+                        xmlJSONObj.put(key + "s", xmlJSONObj.has(key) ? xmlJSONObj.get(key) : new String[0]);
+                        xmlJSONObj.remove(key);
+                    }
                     return xmlJSONObj.toString(4);
                 } catch (Exception e) {}
                 break;
