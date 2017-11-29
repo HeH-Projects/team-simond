@@ -1,6 +1,9 @@
 package be.heh.teamsimond.vetapp;
 
 import be.heh.teamsimond.vetapp.JPA.Appointment;
+import be.heh.teamsimond.vetapp.JPA.Customer;
+import be.heh.teamsimond.vetapp.JPA.Doctor;
+import be.heh.teamsimond.vetapp.JPA.Patient;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -77,7 +80,19 @@ public class VetappElementRepositoryHibernate implements IVetappElementRepositor
         return list;
     }
 
-    public List<IVetappElement> findAppointmentInInterval(Date start, Date end) {
+    public List<IVetappElement> findPatientsByCustomer(Customer customer) {
+        return this.findPatientsByCustomer(customer.getId());
+    }
+    public List<IVetappElement> findPatientsByCustomer(int customerId) {
+        Session session = this.s_beginTransaction();
+        Query query = session.createQuery("FROM Patient c WHERE c.customerId = :customer_id");
+        query.setParameter( "customer_id", customerId);
+        List<IVetappElement> list = query.list();
+        this.s_commitClose(session);
+        return list;
+    }
+
+    public List<IVetappElement> findAppointmentsInInterval(Date start, Date end) {
         Session session = this.s_beginTransaction();
         Query query = session.createQuery("FROM Appointment c WHERE c.id.date BETWEEN :start AND :end");
         query.setParameter( "start", start);
@@ -87,20 +102,25 @@ public class VetappElementRepositoryHibernate implements IVetappElementRepositor
         return list;
     }
 
-    public List<IVetappElement> findAppointmentByDate_Doctor(Date date, int doctorId) {
+    public List<IVetappElement> findAppointmentByDate_Patient(Date date, Patient patient) {
+        return this.findAppointmentByDate_Patient(date, patient.getId());
+    }
+    public List<IVetappElement> findAppointmentByDate_Patient(Date date, int patientId) {
         Session session = this.s_beginTransaction();
-        Query query = session.createQuery("FROM Appointment c WHERE c.id.date = :date AND c.id.doctorId = :doctor_id");
+        Query query = session.createQuery("FROM Appointment c WHERE c.id.date = :date AND c.id.patientId = :patient_id");
         query.setParameter( "date", date);
-        query.setParameter("doctor_id", doctorId);
+        query.setParameter("patient_id", patientId);
         List<IVetappElement> list = query.list();
         this.s_commitClose(session);
         return list;
     }
 
-    public List<IVetappElement> findAppointmentByDate_Patient(Date date, int patientId) {
+    public List<IVetappElement> findAppointmentsByPatient(Patient patient) {
+        return this.findAppointmentsByPatient(patient.getId());
+    }
+    public List<IVetappElement> findAppointmentsByPatient(int patientId) {
         Session session = this.s_beginTransaction();
-        Query query = session.createQuery("FROM Appointment c WHERE c.id.date = :date AND c.id.patientId = :patient_id");
-        query.setParameter( "date", date);
+        Query query = session.createQuery("FROM Appointment c WHERE c.id.patientId = :patient_id");
         query.setParameter("patient_id", patientId);
         List<IVetappElement> list = query.list();
         this.s_commitClose(session);
