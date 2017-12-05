@@ -124,6 +124,10 @@ public class Controller {
                     Date date = (new SimpleDateFormat("yyyy-MM-dd'T'hh:mm")).parse(strId);
                     l = vetappElementRepository.findAppointmentByDate_Patient(date, Integer.parseInt(strPatientId));
                 } catch (Exception e) {}
+            } else if(strClass.equals("customer") && strPatientId != null) {
+                try {
+                    l = vetappElementRepository.findCustomerByPatient(Integer.parseInt(strPatientId));
+                } catch (Exception e) {}
             } else {
                 try {
                     l = vetappElementRepository.findById(this.classMap.get(strClass), Integer.parseInt(strId));
