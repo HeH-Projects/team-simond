@@ -20,18 +20,18 @@ export class TokenService{
         let headers: Headers = new Headers();
         headers.append("Authorization", "Basic " + btoa(username + ":" + password));
         headers.append("Content-Type", "application/x-www-form-urlencoded");
-        console.log(headers);
+        //console.log(headers);
         const options = new RequestOptions({headers: headers});
-        return this._http.post('/oauth/token?grant_type=password&username='+login+'&password='+mdp, this.data, options)
+        return this._http.post('http://localhost:8080/oauth/token?grant_type=password&username='+login+'&password='+mdp, this.data, options)
                     .map((res: Response) => res.json())
                     .subscribe(data => {
                         this.data = data;
-                        console.log(data);
+                        //console.log(data);
                         if(callback){
                             callback(data);
                         }
                     },(err :HttpErrorResponse) => {
-                        if(err.status == 401){
+                        if(err.status == 401 || err.status == 400){
                             callback("error");
                         }
                     });
@@ -43,13 +43,13 @@ export class TokenService{
         let headers: Headers = new Headers();
         headers.append("Authorization", "Basic " + btoa(username + ":" + password));
         headers.append("Content-Type", "application/x-www-form-urlencoded");
-        console.log(headers);
+        //console.log(headers);
         const options = new RequestOptions({headers: headers});
-        return this._http.post('/oauth/token?grant_type=refresh_token&refresh_token='+this.data.refresh_token, this.data, options)
+        return this._http.post('http://localhost:8080/oauth/token?grant_type=refresh_token&refresh_token='+this.data.refresh_token, this.data, options)
                     .map((res: Response) => res.json())
                     .subscribe(data => {
                         this.data = data;
-                        console.log(data);
+                        //console.log(data);
                     }, (err: HttpErrorResponse) =>{
                         if( err.error instanceof Error){
                             console.log('An error occurred: ', err.error.message)
@@ -63,6 +63,10 @@ export class TokenService{
     }
 
     getMyToken(){
-        return this.data.access_token;
+        let headers: Headers = new Headers();
+        headers.append("Authorization", "Bearer "+this.data.access_token);
+        //console.log(headers);
+        const options = new RequestOptions({headers: headers});
+        return options;
     }
 }

@@ -35,24 +35,4 @@ export class LoginComponent {
             }
         }.bind(this));
     }
-
-    
-
-    /*callDoctor(){
-        return this._http.get('http://localhost:8080/api/json/doctor/1/?access_token='+this.data.access_token)
-                    .map((res: Response) => res.json())
-                    .subscribe(doctor => {
-                        this.doctor = doctor.doctor;
-                        console.log(this.doctor);
-                    }, (err: HttpErrorResponse) =>{
-                        if( err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
-                            if(err.status == 401){
-                                this.refreshMyToken();
-                            }
-                        }
-                    });
-    }*/
 }

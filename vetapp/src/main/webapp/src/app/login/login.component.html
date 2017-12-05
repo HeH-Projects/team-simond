@@ -8,8 +8,7 @@
                 required 
                 [(ngModel)]=user.login
                 name="login"
-                #loginVar="ngModel"
-                value="secretaire"/>
+                #loginVar="ngModel"/>
             <span *ngIf="(loginVar.touched || loginVar.dirty) && loginVar.errors">
                 <span *ngIf="loginVar.errors.required">
                     Please enter the login.
@@ -22,8 +21,7 @@
                 required
                 [(ngModel)]=user.password
                 name="password"
-                #passwordVar="ngModel"
-                value="Test123*"/>
+                #passwordVar="ngModel"/>
             <span *ngIf="(passwordVar.touched || passwordVar.dirty) && passwordVar.errors">
                 <span *ngIf="passwordVar.errors.required">
                     Please enter the password.

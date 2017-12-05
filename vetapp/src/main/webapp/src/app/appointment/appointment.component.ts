@@ -9,7 +9,7 @@ import { DoctorIdPipe } from './doctorid.component';
     templateUrl: './appointment.component.html'
 })
 export class AppointmentComponent {
-    apisrv : string = "";
+    apisrv : string = "http://localhost:8080";
     openingHour : number = 8;
     closingHour : number = 17;
     //date = new Date();
@@ -28,13 +28,12 @@ export class AppointmentComponent {
 
     constructor(private _http: Http, private _tokenService : TokenService){
         this.roomColors = [["#E57373","#D32F2F"],["#64B5F6","#1976D2"],["#AED581","#689F38"]];
-        this.token = "/?access_token=" + this._tokenService.getMyToken();
-        _http.get(this.apisrv + "/api/json/doctors" + this.token)
+        _http.get("/api/json/doctors", this._tokenService.getMyToken())
             .map((res: Response) => res.json())
             .subscribe(doctors => {
             this.doctors = doctors.doctors;
         });
-        _http.get(this.apisrv + "/api/json/rooms" + this.token)
+        _http.get("/api/json/rooms", this._tokenService.getMyToken())
             .map((res: Response) => res.json())
             .subscribe(rooms => {
             var i;
@@ -91,7 +90,7 @@ export class AppointmentComponent {
     }
     appointments :any;
     update() {
-        console.log(this.weekView);
+        //console.log(this.weekView);
         this.days = [];
         var date = new Date(this.date), nbDays = 1;
         if (this.weekView) {
@@ -103,7 +102,7 @@ export class AppointmentComponent {
             }
         }
         for (var i = 0; i < nbDays; i++) {
-            this._http.get(this.apisrv + "/api/json/appointments/" + this.yyyy_mm_dd(date) + this.token)
+            this._http.get("/api/json/appointments/" + this.yyyy_mm_dd(date) , this._tokenService.getMyToken())
             .map((res: Response) => res.json())
             .subscribe(function(date, appointments){
                 //console.log(date, appointments);
