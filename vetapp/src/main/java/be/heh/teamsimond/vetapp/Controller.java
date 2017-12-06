@@ -94,12 +94,16 @@ public class Controller {
                     if (object instanceof VetappElements) {
                         String cname = c.getSimpleName().toLowerCase();
                         JSONArray jsonArray;
-                        Object tmp = ((JSONObject) XML.toJSONObject(objectToString((object), "xml", c)).get("vetappElements")).get(cname);
-                        if (tmp instanceof JSONArray) {
-                            jsonArray = (JSONArray) tmp;
-                        } else {
+                        try {
+                            Object tmp = ((JSONObject) XML.toJSONObject(objectToString((object), "xml", c)).get("vetappElements")).get(cname);
+                            if (tmp instanceof JSONArray) {
+                                jsonArray = (JSONArray) tmp;
+                            } else {
+                                jsonArray = new JSONArray();
+                                jsonArray.put(tmp);
+                            }
+                        } catch (Exception e) {
                             jsonArray = new JSONArray();
-                            jsonArray.put(tmp);
                         }
                         jsonObject = new JSONObject();
                         jsonObject.put(cname + "s", jsonArray);
