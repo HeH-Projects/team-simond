@@ -1,6 +1,7 @@
 package be.heh.teamsimond.vetapp;
 
 import be.heh.teamsimond.vetapp.JPA.*;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,15 +90,23 @@ public class Controller {
                 break;
             case "json":
                 try {
-                    JSONObject xmlJSONObj = XML.toJSONObject(objectToString(object, "xml", c));
+                    JSONObject jsonObject;
                     if (object instanceof VetappElements) {
-                        xmlJSONObj = (JSONObject) xmlJSONObj.get("vetappElements");
-                        String[] tmp = c.toString().toLowerCase().split("\\.");
-                        String key = tmp[tmp.length - 1];
-                        xmlJSONObj.put(key + "s", xmlJSONObj.has(key) ? xmlJSONObj.get(key) : new String[0]);
-                        xmlJSONObj.remove(key);
+                        String cname = c.getSimpleName().toLowerCase();
+                        JSONArray jsonArray;
+                        Object tmp = ((JSONObject) XML.toJSONObject(objectToString((object), "xml", c)).get("vetappElements")).get(cname);
+                        if (tmp instanceof JSONArray) {
+                            jsonArray = (JSONArray) tmp;
+                        } else {
+                            jsonArray = new JSONArray();
+                            jsonArray.put(tmp);
+                        }
+                        jsonObject = new JSONObject();
+                        jsonObject.put(cname + "s", jsonArray);
+                    } else {
+                        jsonObject = XML.toJSONObject(objectToString(object, "xml", c));
                     }
-                    return xmlJSONObj.toString(4);
+                    return jsonObject.toString();
                 } catch (Exception e) {}
                 break;
         }
