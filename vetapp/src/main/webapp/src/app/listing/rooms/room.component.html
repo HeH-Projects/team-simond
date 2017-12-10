@@ -1,48 +1,31 @@
-<pm-users></pm-users>
-<div class='container'>
-    <div class="row" style="margin-top:10%">
-        <div class="col-md-8 col-md-offset-2">
-          <div class="window">
-            <div class="row" style='width:100%'>
-              <div class="col-md-12">
-                <form>
-                    <div class="row" >
-                        <div class="col-md-8">
-                            <div class="in-text-input">Room</div>
-                            <input type="text" name="room-input" id="room-input" />
-                        </div>
-                     <!-- HIDDEN if not add-->
-                      <div>
-                            <div class="col-md-4">
-                                <input type="button" name="add-btn" value="Add" id="add-btn">
-                            </div>
-                      </div>
-                     <!-- HIDDEN if add-->
-                      <div hidden>
-                            <div class="col-md-2" style="padding: 0 0.5rem;">
-                                <input type="button" name="modify-btn" value="Modify" id="modify-btn">
-                            </div>
-                            <div class="col-md-2" style="padding: 0 0.5rem;">
-                                <input type="button" name="remove-btn" value="Remove" id="remove-btn">
-                            </div>
-                      </div>
-                      <div class="row">
-                            <div class="col-md-12" style="padding: 0 3rem; margin-top: 2rem;">
-                                <div class="in-text-input">Select</div>
-                                <img class="in-select-input" src="./images/dropdown-arrow.svg">
-                                <select>
-                                    <option value="volvo">Bloc opératoire</option>
-                                    <option value="saab">No 144</option>
-                                    <option value="opel">No 145</option>
-                                    <option value="audi">No 146</option>
-                                </select>
-                          </div>
-                      </div>
-                    </div>
-                </form>
-              </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rooms</title>
+</head>
+<body>
+    <main>
+        <form id="room" novalidate>
+            <label for="rooms">
+                <span>Room</span>
+                <input 
+                    list="rooms"
+                    name="rooms"
+                    [(ngModel)]="form_rooms"
+                    (ngModelChange)="isNewRoom()">
+            </label>
+            <datalist id="rooms" name="rooms">
+                <option *ngFor="let room of rooms" value="{{room.name}}">
+            </datalist>
+            <div *ngIf="newRoom">
+                <button type="submit" (click)="submit(roomForm, 'new')">Create</button>
             </div>
-          </div>
-        </div>
-      </div>
-</div>
+            <div *ngIf="!newRoom">
+                <button type="submit">Modify</button>
+                <button type="submit"><img src="./../../../assets/delete.svg" width="50px"></button>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

@@ -57,7 +57,7 @@ export class DoctorComponent implements OnInit{
         console.log(this.newUser);
     }
 
-    submit(form : NgForm, submitCase){
+    submit(form : NgForm, submitCase : string){
         this.form = form;
         switch(submitCase){
             case "modify" :
