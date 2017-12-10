@@ -1,4 +1,4 @@
-<nav class='navbar navbar-default'>
+<nav *ngIf="token" class='navbar navbar-default'>
   <div class='container-fluid'>
       <ul class='nav navbar-nav'>
           <li class="btn"><a [routerLink]="['/users/doctors']" ><img class='logo' src='./../../../assets/doctor.svg' alt='doctor' >Doctors</a></li>
@@ -7,3 +7,7 @@
       </ul>
   </div>
 </nav>
+
+<div *ngIf="!token">
+    <p>You are not authentificated. Please go to login page -> <a [routerLink]="['/login']"> here</a> .</p>
+</div>

@@ -1,102 +1,57 @@
 <pm-users></pm-users>
-<div class='container'>
-        <div class="row">
-                <div class="col-md-8 col-md-offset-2">
-                        <div class="window">
-                                <div class="row">
-                                        <div class="col-md-12">
-                                                <form #form="ngForm">
-                                                        <div class="row">
-                                                                <div class="col-md-12">
-                                                                        <div class="in-text-input">Name</div>
-                                                                        <input type="text" 
-                                                                                name="name-input" 
-                                                                                id="name-input" 
-                                                                                list="doctor"
-                                                                                [(ngModel)]=form_name
-                                                                                #nameVar="ngModel"
-                                                                                (ngModelChange)="isNewUser()"/>
-                                                                        <datalist id="doctor">
-                                                                                <option *ngFor="let d of doctors">{{d.name}}</option>
-                                                                        </datalist>
-                                                                        <span *ngIf="(nameVar.touched || nameVar.dirty) && nameVar.errors">
-                                                                                <span *ngIf="nameVar.errors.required">
-                                                                                        Please enter a doctor.
-                                                                                </span>
-                                                                        </span>
-                                                                </div>
-
-                                                                <div class="row">
-                                                                        <div class="col-md-12" style="padding: 0 3rem; margin-top: 2rem;">
-                                                                                <div class="in-text-input">Room</div>
-                                                                                <select [(ngModel)]="form_room"
-                                                                                        name="room-input"
-                                                                                        #roomVar="ngModel">
-                                                                                        <option *ngFor="let r of rooms" value="{{r.id}}">{{r.name}}</option>
-                                                                                </select>
-                                                                        </div>
-                                                                </div>
-
-                                                                <div class="row">
-                                                                        <div class="col-md-9 col-md-offset-2">
-                                                                                <div class="day" id="monday">
-                                                                                        <span class="this-day">Monday</span>
-                                                                                        <span class="select-time">8</span>
-                                                                                        <span class="select-time is-active">9</span>
-                                                                                        <span class="select-time">10</span>
-                                                                                        <span class="select-time">11</span>
-                                                                                        <span class="select-time">12</span>
-                                                                                        <span class="select-time">13</span>
-                                                                                        <span class="select-time">14</span>
-                                                                                        <span class="select-time">15</span>
-                                                                                        <span class="select-time">16</span>
-                                                                                        <span class="select-time">17</span>
-                                                                                </div>
-                                                                        </div>
-                                                                </div>
-
-                                                                <div class="row">
-                                                                        <div class="col-md-9 col-md-offset-2">
-                                                                                <div class="day" id="tuesday">
-                                                                                        <span class="this-day">Tuesday</span>
-                                                                                        <span class="select-time">8</span>
-                                                                                        <span class="select-time">9</span>
-                                                                                        <span class="select-time">10</span>
-                                                                                        <span class="select-time">11</span>
-                                                                                        <span class="select-time is-active">12</span>
-                                                                                        <span class="select-time is-active">13</span>
-                                                                                        <span class="select-time is-active">14</span>
-                                                                                        <span class="select-time">15</span>
-                                                                                        <span class="select-time is-active">16</span>
-                                                                                        <span class="select-time is-active">17</span>
-                                                                                </div>
-                                                                        </div>
-                                                                </div>
-
-                                                                <div class="row" hidden>
-                                                                        <div class="col-md-12" style="margin-top: 1rem;">
-                                                                                <input type="button" value="Create" style="background-color: #2ECC40"/>
-                                                                        </div>
-                                                                </div>
-
-                                                                <div class="row">
-                                                                        <div *ngIf="newUser" class="col-md-6" style="margin-top: 1rem;">
-                                                                                <input (click)="submit(form, 'new')" type="button" value="New" style="background-color: #FFDC00"/>
-                                                                        </div>
-                                                                        <div *ngIf="!newUser" class="col-md-6" style="margin-top: 1rem;">
-                                                                                <input (click)="submit(form, 'modify')" type="button" value="Modify" style="background-color: #FFDC00"/>
-                                                                        </div>
-                                                                        <div class="col-md-6" style="margin-top: 1rem;">
-                                                                                <input (click)="submit(form, 'remove')" type="button" value="Remove" style="background-color: #FF4136"/>
-                                                                        </div>
-                                                                </div>
-
-                                                        </div>
-                                                </form>
-                                        </div>
-                                </div>
-                        </div>
-
-                </div>
+<main>
+    <form 
+        id="doctor"
+        novalidate
+        #doctorForm="ngForm">
+        <div class="fieldset" id="infos">
+            <label for="name">
+                <span>Name</span>
+                <input 
+                    id="name" 
+                    name="name" 
+                    type="text"
+                    [(ngModel)]="form_name"
+                    #nameVar="ngModel"
+                    list="doctors"
+                    (ngModelChange)="isNewUser()">
+                <datalist id="doctors">
+                    <option *ngFor="let doctor of doctors" value="{{doctor.name}}">
+                </datalist>
+            </label>
+            <label for="rooms">
+                <span>Room</span>
+                <select id="rooms" name="rooms" form="doctor">
+                    <option *ngFor="let room of rooms" value="{{room.id}}">{{room.name}}</option>
+                </select>
+            </label>
         </div>
-</div>
+        <div id="workweek">
+            <div class="fieldset" *ngFor="let day of days" id="{{day}}">
+                <span>{{day}}</span>
+                <div class="working_hours">
+                    <label *ngFor="let hour of range(openingHour, closingHour)" (click)="doSomething()">
+                        <span>{{hour}}</span>
+                        <input 
+                            id="{{day}}_{{hour}}" 
+                            name="{{day}}_{{hour}}" 
+                            type="checkbox" 
+                            class="checkbox"
+                            [(ngModel)]="timeSlots[day][hour]"/>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="fieldset" id="actions">
+            <button *ngIf="newUser" type="submit">
+                Create
+            </button>
+            <button *ngIf="!newUser" type="submit">
+                Modify
+            </button>
+            <button type="submit">
+                Remove
+            </button>
+        </div>
+    </form>
+</main>

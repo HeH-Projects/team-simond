@@ -12,7 +12,7 @@ import { RequestService } from '../../service/request.service';
     styleUrls: ['./doctor.component.css']
 })
 export class DoctorComponent implements OnInit{
-
+    
     doctors : any = null;
     rooms : any = null;
     form_name : string = null;
@@ -20,13 +20,30 @@ export class DoctorComponent implements OnInit{
     form : NgForm;
     newUser : boolean = true;
 
-    constructor(private _tokenService : TokenService, private _http : Http, private _requestService : RequestService){ }
+    openingHour = 8;
+    closingHour = 17;
+
+    days : string[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    timeSlots : object = { monday : [], tuesday : [], wednesday : [], thursday : [], friday : [], saturday: [], sunday : [] }; 
+
+    constructor(private _tokenService : TokenService, private _http : Http, private _requestService : RequestService){
+        this._requestService.context = this;
+    }
 
     ngOnInit(){
         this._requestService.callDoctors();
         this._requestService.callRooms();
     }
 
+    range(start : number, end : number){
+        let input = new Array();
+    
+        for (var i=start; i<=end; i++) {
+            input.push(i);
+        }
+    
+        return input;
+    }
 
     isNewUser() {
         this.newUser = true;

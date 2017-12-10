@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TokenService } from '../../service/token.service';
 
 @Component({
   selector: 'pm-users',
@@ -7,10 +8,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class UsersComponent implements OnInit {
 
-
-  constructor() { }
+  token : any = null;
+  constructor(private _tokenService : TokenService) { }
 
   ngOnInit() {
+    this.token = this._tokenService.getMyToken();
   }
 
 }

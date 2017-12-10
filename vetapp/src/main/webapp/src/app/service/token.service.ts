@@ -63,10 +63,12 @@ export class TokenService{
     }
 
     getMyToken(){
-        let headers: Headers = new Headers();
-        headers.append("Authorization", "Bearer "+this.data.access_token);
-        //console.log(headers);
-        const options = new RequestOptions({headers: headers});
-        return options;
+        if(this.data != null){
+            let headers: Headers = new Headers();
+            headers.append("Authorization", "Bearer "+this.data.access_token);
+            //console.log(headers);
+            const options = new RequestOptions({headers: headers});
+            return options;
+        }
     }
 }

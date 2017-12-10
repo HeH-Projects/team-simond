@@ -97,8 +97,105 @@
 .vetCal .today h3 {
     background-color: #eee;
 }
+.vetCal-popup {
+    position: absolute;
+    display : none;
+    height: 100%;
+    width: 100%;
+    background: rgba(0,0,0,.5);
+    z-index: 1;
+    top: 0;
+}
+.vetCal-popup form {
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    width: fit-content;
+    padding: 50px;
+    background: white;
+    z-index: 1;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.vetCal-popup h3 {
+    text-align: center;
+    margin: 0 0 20px 0;
+}
+.vetCal-popup input, .vetCal-popup select {
+    width: 100%;
+    height: 2em;
+    padding: 0 1em;
+    line-height: 2em;
+    margin-bottom: 1em;
+}
 </style>
-<div class="vetCal">	
+<div *ngIf="!token">
+    <p>You are not authentificated. Please go to login page -> <a [routerLink]="['/login']"> here</a> .</p>
+</div>
+<div *ngIf="token" class="vetCal">
+    <div class="vetCal-popup">
+        <form id="vetCal-appointment-form"  
+            novalidate 
+            #vetCalAppointmentForm="ngForm"
+            (ngSubmit)="submit(vetCalAppointmentForm)">
+            <h3></h3>
+            <input type="hidden" name="date" value="">
+            <label>
+                Médecin:
+                <select 
+                    name="doctor" 
+                    disabled
+                    [(ngModel)]="form_doctor"
+                    #doctor="ngModel">
+                    <option *ngFor="let doctor of doctors" value="{{doctor.id}}">{{doctor.name}}</option>
+                </select>
+            </label>
+            <label>
+                Client:
+                <input 
+                    type="text" 
+                    name="customer" 
+                    list="customers" 
+                    [(ngModel)]="form_customer"
+                    #customer="ngModel"
+                    (ngModelChange)="onCustomerChange()">
+                <datalist id="customers">
+                    <option *ngFor="let customer of customers" value="{{customer.name}} #{{customer.id}}">
+                </datalist>
+            </label>
+            <label>
+                Patient:
+                <select 
+                    name="patient"
+                    [(ngModel)]="form_patient"
+                    #patient="ngModel"
+                    disabled>
+                    <option *ngFor="let patient of patients" value="{{patient.id}}">{{patient.name}}</option>
+                </select>
+            </label>
+            <label>
+                Salle:
+                <select 
+                    name="room"
+                    [(ngModel)]="form_room"
+                    #room="ngModel">
+                    <option *ngFor="let room of rooms" value="{{room.id}}">{{room.name}}</option>
+                </select>
+            </label>
+            <label>
+                Type d'examen:
+                <select 
+                    name="type"
+                    [(ngModel)]="form_exam"
+                    #exam="ngModel">
+                    <option *ngFor="let type of types" value="{{type.id}}">{{type.name}}</option>
+                </select>
+            </label>
+            <input type="submit">
+        </form>
+    </div>
     <div class="vetCal-sidebar">
         <nav>
             <button (click)="changeView()">{{weekView ? "DayView" : "WeekView"}}</button>
