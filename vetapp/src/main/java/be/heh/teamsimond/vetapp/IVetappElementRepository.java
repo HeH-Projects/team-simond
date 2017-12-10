@@ -19,6 +19,8 @@ public interface IVetappElementRepository {
     List<IVetappElement> findAppointmentByDate_Patient(Date date, int patientId);
     List<IVetappElement> findAppointmentsByPatient(Patient patient);
     List<IVetappElement> findAppointmentsByPatient(int patientId);
+    List<IVetappElement> findCustomerByPatient(Patient patient);
+    List<IVetappElement> findCustomerByPatient(int cutomerId);
     void update(IVetappElement e);
     void save(IVetappElement e);
     void delete(IVetappElement e);

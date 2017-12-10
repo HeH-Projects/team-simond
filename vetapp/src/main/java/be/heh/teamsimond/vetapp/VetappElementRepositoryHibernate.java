@@ -125,6 +125,17 @@ public class VetappElementRepositoryHibernate implements IVetappElementRepositor
         return list;
     }
 
+    public List<IVetappElement> findCustomerByPatient(Patient patient) {
+        return this.findCustomerByPatient(patient.getId());
+    }
+    public List<IVetappElement> findCustomerByPatient(int patientId) {
+        Session session = this.s_beginTransaction();
+        TypedQuery<IVetappElement> query = session.createQuery("FROM Customer c WHERE c.id = (SELECT p.customerId FROM Patient p WHERE p.id = :patient_id)");
+        query.setParameter("patient_id", patientId);
+        List<IVetappElement> list = query.getResultList();
+        this.s_commitClose(session);
+        return list;
+    }
     public void deleteElement(Class c, IVetappElement e) {
         Session session = HibernateUtil.getSessionFactory().openSession();
         session.delete(e);
