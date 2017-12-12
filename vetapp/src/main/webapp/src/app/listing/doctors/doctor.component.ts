@@ -15,10 +15,12 @@ export class DoctorComponent implements OnInit{
     
     doctors : any = null;
     rooms : any = null;
+    roomNames : any = [];
     form_name : string = null;
     form_room : string = null;
     form : NgForm;
     newUser : boolean = true;
+    selectedDoctor : any = null;
 
     openingHour = 8;
     closingHour = 17;
@@ -52,9 +54,32 @@ export class DoctorComponent implements OnInit{
             if(doctor.name == this.form_name){
                 console.log('match found');
                 this.newUser = false; 
+                this.selectedDoctor = doctor;
+                for(let j = 0; j < 7; j++){
+                    let x = parseInt(doctor[this.days[j]], 16);
+                    for(let i = 0; i<24; i++){
+                        this.timeSlots[this.days[j]][i] = x >> (23-i) & 1;
+                    }
+                }
+                this.selectOptionByValue(document.getElementById("rooms"), doctor.roomId);
             }
         });
+        if(this.newUser){
+            for(let i = 0; i < 7; i++){
+                this.timeSlots[this.days[i]] = [];
+            }
+        }
         console.log(this.newUser);
+    }
+
+    selectOptionByValue(sObj, value) {
+        var i;
+        for (i = 0; i < sObj.options.length; i++) {
+            if (sObj.options[i].value == value) {
+                sObj.options.selectedIndex = i;
+                break;
+            }
+        }
     }
 
     submit(form : NgForm, submitCase : string){

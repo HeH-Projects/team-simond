@@ -17,7 +17,7 @@ export class LoginComponent {
 
     
     doctor : any = null;
-    user : User = new User();
+    user : User = new User("secretaire", "Test123*");
     loginForm : NgForm;
     badLogin : boolean = false;
 

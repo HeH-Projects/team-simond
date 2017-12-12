@@ -8,12 +8,13 @@ import { DoctorIdPipe } from './doctorid.component';
 import { RequestService } from '../service/request.service';
 
 @Component({
-    templateUrl: './appointment.component.html'
+    templateUrl: './appointment.component.html',
+    styleUrls: ['./appointment.component.css']
 })
 export class AppointmentComponent implements OnInit{
     apisrv : string = "http://localhost:8080";
     openingHour : number = 8;
-    closingHour : number = 17;
+    closingHour : number = 18;
     //date = new Date();
     date = new Date(2017,0,1);
     weekView : boolean;
@@ -41,6 +42,8 @@ export class AppointmentComponent implements OnInit{
     iterableDiffer : any = null;
 
     selectedPatientId : number = null;
+
+    updateAppointement : boolean = false;
 
     constructor(private _http: Http, private _tokenService : TokenService, private _iterableDiffers: IterableDiffers, private _requestService : RequestService){
         this._requestService.context = this;
@@ -126,6 +129,7 @@ export class AppointmentComponent implements OnInit{
     createAppointment(doctor, day, hour, x) {
         this.popup = document.querySelector('.vetCal-popup');
         this.form = document.querySelector('#vetCal-appointment-form');
+        this.updateAppointement = false;
         console.log(this.popup);
         this.popup.style.display = "block";
         var f = this.form,
@@ -142,17 +146,17 @@ export class AppointmentComponent implements OnInit{
         this.popup = document.querySelector('.vetCal-popup');
         this.form = document.querySelector('#vetCal-appointment-form');
         this.popup.style.display = "block";        
+        this.updateAppointement = true;
         var f = this.form,
             d = this.stringToDate(appointment.date),
-            x = d.getHours() + ":" + d.getMinutes;
+            x = d.getHours() + ":" + d.getMinutes();
         f.date = this.yyyy_mm_dd(d, true);
         f.getElementsByTagName("h3")[0].innerHTML = this.dateToTitle(d) + " " + x;
         this.selectOptionByValue(f.doctor, appointment.doctorId);
+        this.selectOptionByValue(f.room, appointment.roomId);
         this.selectedPatientId = appointment.patientId;
         
         this._requestService.findCustomerByPatientId(appointment.patientId);
-        f.customer.disabled = true;
-        f.patient.disabled = true;
     }
     selectOptionByValue(sObj, value) {
         var i;
@@ -164,6 +168,7 @@ export class AppointmentComponent implements OnInit{
         }
     }
     onCustomerChange() {
+        console.log('customer change');
         var f = this.form,
             tmp = f.customer.value.split("#");
         if (tmp.length == 2) {
@@ -172,27 +177,29 @@ export class AppointmentComponent implements OnInit{
             if(f.customer.value.length >= 1){
                 this._requestService.findCustomersByIncompleteName(f.customer.value);
             }
-            this.patients = null;
-            f.patient.disabled = true;
+            this.patients = [];
         }
     }
     
     ngDoCheck() {
         var f = this.form;
         if (this.iterableDiffer.diff(this.patients)) {
-            console.log('ok bis');
             if (this.selectedPatientId !== null) { // updateAppointment
                 this.selectOptionByValue(f.patient, this.selectedPatientId);
+                console.log(f.patient);
+                console.log(f.patient.options);
+                console.log(this.selectedPatientId);
                 f.patient.disabled = true;
             } else { // createAppointment
-                console.log('ok tris');
                 f.patient.disabled = false;
             }
+        }else if(this.iterableDiffer.diff(this.customers)){
+            if(this.updateAppointement&& this.customers.length == 1){
+                f.customer.disabled = false;
+                f.customer.value = this.customers[0].name + " #" + this.customers[0].id;
+                this.onCustomerChange();
+            }
         }
-        /*if (this.iterableDiffer.diff(this.customers)
-                && f.customer.list.options.length == 1) {
-            f.customer.value = f.customer.list.options[0].value;
-        }*/
     }
     
     submit(form){

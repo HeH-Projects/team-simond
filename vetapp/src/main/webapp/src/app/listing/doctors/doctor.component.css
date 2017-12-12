@@ -422,6 +422,9 @@ form{
   margin: 0;
   padding: 0;
 }
+#workweek>.fieldset>span::first-letter{
+  text-transform: uppercase;
+}
 
 #workweek>.fieldset>div.working_hours{
   width: 80%;
@@ -433,15 +436,15 @@ form{
   align-items: center;
 }
 
-#workweek>.fieldset>div.working_hours>label{
+#workweek>.fieldset>div.working_hours>label>span{
   background-color: #f5f5f5;
   border: 2px solid #dedede;
   border-radius: 15%;
   padding: 5px 2%;
 }
 
-#workweek>.fieldset>div.working_hours>label.checked{
-  background-color: #0088d6;
+#workweek>.fieldset>div.working_hours>label input:checked ~ span{
+  background-color: #0088d6; 
   color: white;
 }
 

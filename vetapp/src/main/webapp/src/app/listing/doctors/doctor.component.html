@@ -30,14 +30,14 @@
             <div class="fieldset" *ngFor="let day of days" id="{{day}}">
                 <span>{{day}}</span>
                 <div class="working_hours">
-                    <label *ngFor="let hour of range(openingHour, closingHour)" (click)="doSomething()">
-                        <span>{{hour}}</span>
+                    <label *ngFor="let hour of range(openingHour, closingHour)">
                         <input 
                             id="{{day}}_{{hour}}" 
                             name="{{day}}_{{hour}}" 
                             type="checkbox" 
                             class="checkbox"
                             [(ngModel)]="timeSlots[day][hour]"/>
+                        <span>{{hour}}</span>
                     </label>
                 </div>
             </div>
