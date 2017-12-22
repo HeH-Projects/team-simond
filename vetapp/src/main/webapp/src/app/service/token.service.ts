@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Http, Response, Headers, RequestOptions } from '@angular/http';
 import { HttpErrorResponse } from '@angular/common/http';
+import { HttpHeaders } from '@angular/common/http';
 
 @Injectable()
 export class TokenService{
@@ -22,7 +23,7 @@ export class TokenService{
         headers.append("Content-Type", "application/x-www-form-urlencoded");
         //console.log(headers);
         const options = new RequestOptions({headers: headers});
-        return this._http.post('http://localhost:8080/oauth/token?grant_type=password&username='+login+'&password='+mdp, this.data, options)
+        return this._http.post('/oauth/token?grant_type=password&username='+login+'&password='+mdp, this.data, options)
                     .map((res: Response) => res.json())
                     .subscribe(data => {
                         this.data = data;
@@ -45,7 +46,7 @@ export class TokenService{
         headers.append("Content-Type", "application/x-www-form-urlencoded");
         //console.log(headers);
         const options = new RequestOptions({headers: headers});
-        return this._http.post('http://localhost:8080/oauth/token?grant_type=refresh_token&refresh_token='+this.data.refresh_token, this.data, options)
+        return this._http.post('/oauth/token?grant_type=refresh_token&refresh_token='+this.data.refresh_token, this.data, options)
                     .map((res: Response) => res.json())
                     .subscribe(data => {
                         this.data = data;
@@ -67,7 +68,7 @@ export class TokenService{
             let headers: Headers = new Headers();
             headers.append("Authorization", "Bearer "+this.data.access_token);
             //console.log(headers);
-            const options = new RequestOptions({headers: headers});
+            const options = new RequestOptions({headers : headers})
             return options;
         }
     }

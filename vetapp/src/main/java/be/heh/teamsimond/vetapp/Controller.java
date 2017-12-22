@@ -134,14 +134,17 @@ public class Controller {
             List<IVetappElement> l = new ArrayList<>();
             if (strClass.equals("appointment")) {
                 try {
-                    Date date = (new SimpleDateFormat("yyyy-MM-dd'T'hh:mm")).parse(strId);
+                    Date date = (new SimpleDateFormat("yyyy-MM-dd'T'HH:mm")).parse(strId);
                     l = vetappElementRepository.findAppointmentByDate_Patient(date, Integer.parseInt(strPatientId));
                 } catch (Exception e) {}
             } else if(strClass.equals("customer") && strPatientId != null) {
                 try {
                     l = vetappElementRepository.findCustomerByPatient(Integer.parseInt(strPatientId));
                 } catch (Exception e) {}
-            } else {
+            } else if(strClass.equals("room") && strPatientId != null){
+                l = vetappElementRepository.findRoomByName(strPatientId);
+            }
+            else {
                 try {
                     l = vetappElementRepository.findById(this.classMap.get(strClass), Integer.parseInt(strId));
                 } catch (Exception e) {}

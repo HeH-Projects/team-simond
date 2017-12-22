@@ -22,7 +22,7 @@ public class Patient implements IVetappElement {
     private int type;
     private int breed;
     @Column(name="has_picture")
-    private boolean hasPic;
+    private boolean hasPic = false;
 
     public int getId() {
         return id;

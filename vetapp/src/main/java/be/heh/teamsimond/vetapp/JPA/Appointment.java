@@ -60,7 +60,7 @@ public class Appointment implements IVetappElement {
             e.setId(new AppointmentId(
                     Integer.parseInt(parameters.get("patient_id")[0]),
                     Integer.parseInt(parameters.get("doctor_id")[0]),
-                    (new SimpleDateFormat("yyyy-MM-dd'T'hh:mm")).parse(parameters.get("date")[0])));
+                    (new SimpleDateFormat("yyyy-MM-dd'T'HH:mm")).parse(parameters.get("date")[0])));
             List<String> l = e.update(parameters);
             if (l.contains("room_id")
                     && l.contains("type")) {

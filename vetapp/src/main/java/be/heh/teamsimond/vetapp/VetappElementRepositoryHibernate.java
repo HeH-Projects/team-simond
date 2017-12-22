@@ -140,4 +140,12 @@ public class VetappElementRepositoryHibernate implements IVetappElementRepositor
         Session session = HibernateUtil.getSessionFactory().openSession();
         session.delete(e);
     }
+    public List<IVetappElement> findRoomByName(String name) {
+        Session session = this.s_beginTransaction();
+        TypedQuery<IVetappElement> query = session.createQuery("FROM Room c WHERE c.name = :name");
+        query.setParameter("name", name);
+        List<IVetappElement> list = query.getResultList();
+        this.s_commitClose(session);
+        return list;
+    }
 }

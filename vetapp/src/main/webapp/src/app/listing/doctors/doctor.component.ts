@@ -3,7 +3,7 @@ import { TokenService } from '../../service/token.service';
 import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { Http, Response } from '@angular/http';
 import { HttpErrorResponse } from '@angular/common/http';
-import { NgModel } from '@angular/forms'
+import { NgModel } from '@angular/forms';
 import { NgForm } from '@angular/forms/src/directives/ng_form';
 import { RequestService } from '../../service/request.service';
 

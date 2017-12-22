@@ -136,3 +136,8 @@
     line-height: 2em;
     margin-bottom: 1em;
 }
+label{
+  display: block !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}

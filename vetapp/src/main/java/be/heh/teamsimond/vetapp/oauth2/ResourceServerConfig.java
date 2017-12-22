@@ -10,7 +10,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Override
     public void configure(HttpSecurity http) throws Exception {
         // only secure channel, https, is allowed
-        // http.requiresChannel().anyRequest().requiresSecure();
+        http.requiresChannel().anyRequest().requiresSecure();
 
         // static resources
         http.authorizeRequests().antMatchers("/index.html", "/", "/*.js", "/*.css", "/assets/**").permitAll();

@@ -15,8 +15,8 @@ export class AppointmentComponent implements OnInit{
     apisrv : string = "http://localhost:8080";
     openingHour : number = 8;
     closingHour : number = 18;
-    //date = new Date();
-    date = new Date(2017,0,1);
+    date = new Date();
+    //date = new Date(2017,0,1);
     weekView : boolean;
     
     appointmentDurations = [.5,.75,1];
@@ -137,10 +137,16 @@ export class AppointmentComponent implements OnInit{
             y = hour + ":" + x*15;
         d.setHours(hour);
         d.setMinutes(x*15);
-        f.date = this.yyyy_mm_dd(d, true);
+        f.date.value = this.yyyy_mm_dd(d, true);
         f.getElementsByTagName("h3")[0].innerHTML = this.dateToTitle(d) + " " + y;
         this.selectOptionByValue(f.doctor, doctor.id);
         this.selectedPatientId = null;
+        this.form.patient.disabled = false;
+        this.form.customer.disabled = false;
+        this.form.customer.value = "";
+        this.patients = [];
+        this.form.room.selectedIndex = -1;
+        this.form.type.selectedIndex = -1;
     }
     updateAppointment(appointment) {
         this.popup = document.querySelector('.vetCal-popup');
@@ -150,17 +156,23 @@ export class AppointmentComponent implements OnInit{
         var f = this.form,
             d = this.stringToDate(appointment.date),
             x = d.getHours() + ":" + d.getMinutes();
-        f.date = this.yyyy_mm_dd(d, true);
+        f.date.value = this.yyyy_mm_dd(d, true);
         f.getElementsByTagName("h3")[0].innerHTML = this.dateToTitle(d) + " " + x;
         this.selectOptionByValue(f.doctor, appointment.doctorId);
         this.selectOptionByValue(f.room, appointment.roomId);
+        this.selectOptionByValue(f.type, appointment.type);
         this.selectedPatientId = appointment.patientId;
         
         this._requestService.findCustomerByPatientId(appointment.patientId);
+        
+        this.form.patient.disabled = true;
+        this.form.customer.disabled = true;
+    }
+    removeAppointment(){
+        this._requestService.removeAppointement(this.form.date.value, this.form.patient.value)
     }
     selectOptionByValue(sObj, value) {
-        var i;
-        for (i = 0; i < sObj.options.length; i++) {
+        for (let i = 0; i < sObj.options.length; i++) {
             if (sObj.options[i].value == value) {
                 sObj.options.selectedIndex = i;
                 break;
@@ -171,7 +183,7 @@ export class AppointmentComponent implements OnInit{
         console.log('customer change');
         var f = this.form,
             tmp = f.customer.value.split("#");
-        if (tmp.length == 2) {
+        if (tmp.length == 2 && this.patients.length == 0) {
             this._requestService.findPatientsByCustomerId(parseInt(tmp[1]));
         } else {
             if(f.customer.value.length >= 1){
@@ -180,30 +192,49 @@ export class AppointmentComponent implements OnInit{
             this.patients = [];
         }
     }
-    
-    ngDoCheck() {
-        var f = this.form;
-        if (this.iterableDiffer.diff(this.patients)) {
+
+    ngAfterViewChecked(){
+        let f = this.form;
+        
+        if(this.patients.length >0){
             if (this.selectedPatientId !== null) { // updateAppointment
                 this.selectOptionByValue(f.patient, this.selectedPatientId);
-                console.log(f.patient);
-                console.log(f.patient.options);
-                console.log(this.selectedPatientId);
-                f.patient.disabled = true;
-            } else { // createAppointment
-                f.patient.disabled = false;
-            }
-        }else if(this.iterableDiffer.diff(this.customers)){
-            if(this.updateAppointement&& this.customers.length == 1){
-                f.customer.disabled = false;
-                f.customer.value = this.customers[0].name + " #" + this.customers[0].id;
-                this.onCustomerChange();
-            }
+            } 
+        }
+        if(this.updateAppointement && this.customers.length == 1){
+            f.customer.value = this.customers[0].name + " #" + this.customers[0].id;
+            this.onCustomerChange();
         }
     }
     
-    submit(form){
-        this.form = form;
+    submit(){
+        let form = this.form;
+        let data = new FormData();
+        data.append("room_id", form.room.value);
+        data.append("type", form.type.value); 
+        if(this.updateAppointement){
+            this._requestService.modifyAppointment(form.date.value, form.patient.value, data);
+        }else{
+            data.append("patient_id", form.patient.value);
+            data.append("doctor_id", form.doctor.value);
+            data.append("date", form.date.value);
+            console.log(form.date);
+            console.log(form.date.value);
+            this._requestService.addAppointment(data);
+        }
+    }
+
+    setCustomers(customers){
+        this.customers = customers;
+    }
+    setPatients(patients){
+        this.patients = patients;
+    }
+
+    refresh(){
+        this.appointments = null;
+        this.popup.style.display = "none";
+        this.update();
     }
 }
 

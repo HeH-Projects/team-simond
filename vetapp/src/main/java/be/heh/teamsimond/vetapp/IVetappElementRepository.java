@@ -24,4 +24,6 @@ public interface IVetappElementRepository {
     void update(IVetappElement e);
     void save(IVetappElement e);
     void delete(IVetappElement e);
+
+    List<IVetappElement> findRoomByName(String name);
 }
