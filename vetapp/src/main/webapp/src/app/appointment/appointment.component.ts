@@ -85,7 +85,9 @@ export class AppointmentComponent implements OnInit{
         return ("000000000000000000000000" + parseInt(doctor[["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][day.date.getDay()]], 16).toString(2)).slice(-24)[hour] == '1';
     }
     stringToDate(str) {
-        return new Date(str);
+        let d =  new Date(str);
+		d.setTime(d.getTime() + (d.getTimezoneOffset() * 60 * 1000));
+		return d;
     }
     today() {
         this.date = new Date();
@@ -95,7 +97,6 @@ export class AppointmentComponent implements OnInit{
         this.date.setDate(this.date.getDate() + ((add ? 1 : -1) * (this.weekView ? 7 : 1)));
         this.update();
     }
-    appointments :any;
     update() {
         //console.log(this.weekView);
         this.days = [];
@@ -112,9 +113,16 @@ export class AppointmentComponent implements OnInit{
             this._http.get("/api/json/appointments/" + this.yyyy_mm_dd(date) , this._tokenService.getMyToken())
             .map((res: Response) => res.json())
             .subscribe(function(date, appointments){
-                //console.log(date, appointments);
-                this.days.push({date: date, appointments: appointments.appointments, isToday: date.toDateString() === (new Date()).toDateString() });
-                this.days.sort((a:any, b:any) => a.date - b.date);
+				let i, hf_duplicate = false;
+				for (i = 0; i < this.days.length; i++) {
+					if (this.days[i].date.getTime() == date.getTime()) {
+						hf_duplicate = true;
+					}
+				}
+				if (!hf_duplicate) {
+					this.days.push({date: date, appointments: appointments.appointments, isToday: date.toDateString() === (new Date()).toDateString() });
+					this.days.sort((a:any, b:any) => a.date - b.date);
+				}
             }.bind(this, date));
             date = new Date(date);
             date.setDate(date.getDate() + 1);
@@ -130,7 +138,7 @@ export class AppointmentComponent implements OnInit{
         this.popup = document.querySelector('.vetCal-popup');
         this.form = document.querySelector('#vetCal-appointment-form');
         this.updateAppointement = false;
-        console.log(this.popup);
+        //console.log(this.popup);
         this.popup.style.display = "block";
         var f = this.form,
             d = day.date,
@@ -180,7 +188,7 @@ export class AppointmentComponent implements OnInit{
         }
     }
     onCustomerChange() {
-        console.log('customer change');
+        //console.log('customer change');
         var f = this.form,
             tmp = f.customer.value.split("#");
         if (tmp.length == 2 && this.patients.length == 0) {
@@ -218,8 +226,8 @@ export class AppointmentComponent implements OnInit{
             data.append("patient_id", form.patient.value);
             data.append("doctor_id", form.doctor.value);
             data.append("date", form.date.value);
-            console.log(form.date);
-            console.log(form.date.value);
+            //console.log(form.date);
+            //console.log(form.date.value);
             this._requestService.addAppointment(data);
         }
     }
@@ -232,7 +240,6 @@ export class AppointmentComponent implements OnInit{
     }
 
     refresh(){
-        this.appointments = null;
         this.popup.style.display = "none";
         this.update();
     }

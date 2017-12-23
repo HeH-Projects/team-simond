@@ -85,7 +85,7 @@ export class ClientComponent implements OnInit {
 
   setCustomers(customers){
     this.customers = customers;
-    if(this.customerId == 0){
+    if(this.customerId != 0){
       this._requestService.findPatientsByCustomerId(this.customerId);
       this.customers.forEach(element => {
         if(element.id == this.customerId){
@@ -204,8 +204,8 @@ export class ClientComponent implements OnInit {
     if(this.customer != null){
       this.customerId = this.customer.id;
     }
-    this.customerChange();
     this._requestService.findCustomersByIncompleteName(this.customer.name[0]);
+    this.customerChange();
   }
 
   customerChange(){
