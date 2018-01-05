@@ -5,8 +5,6 @@ import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import "rxjs/add/operator/map";
-import { Observable } from 'rxjs/Observable';
-import { HttpErrorResponse } from '@angular/common/http';
 import { User } from './user';
 
 @Component({
@@ -15,7 +13,6 @@ import { User } from './user';
 })
 export class LoginComponent {
 
-    
     doctor : any = null;
     user : User = new User("secretaire", "Test123*");
     loginForm : NgForm;

@@ -9,6 +9,9 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
+        //CSRF support (avoid session to be usable by other pages)
+        //http.csrf();
+
         // only secure channel, https, is allowed
         http.requiresChannel().anyRequest().requiresSecure();
 
@@ -16,6 +19,5 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         http.authorizeRequests().antMatchers("/index.html", "/", "/*.js", "/*.css", "/assets/**").permitAll();
 
         http.authorizeRequests().anyRequest().authenticated();
-
     }
 }

@@ -1,300 +1,249 @@
 import { Injectable } from '@angular/core';
-import { Http, Response, Headers, RequestOptions } from '@angular/http';
-import { HttpErrorResponse } from '@angular/common/http';
-import { TokenService } from './token.service';
+import { Observable } from 'rxjs/Observable';
+import { of } from 'rxjs/observable/of';
+import {Doctor} from "../models/doctor";
+import {TokenService} from "./token.service";
+import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
+import {catchError, tap} from "rxjs/operators";
+import {MessageService} from "./message.service";
+import {Room} from "../models/room";
+import {Customer} from "../models/customer";
+import {Patient} from "../models/patient";
+import {Appointment} from "../models/appointment";
 
 @Injectable()
-export class RequestService{
-    
-    context : any;
-    data : any = null;
+export class RequestService {
 
-    constructor(private _http : Http, private _tokenService : TokenService) {}
-    
-    callDoctors(){
-        return this._http.get('/api/json/doctors', this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data => {
-                        this.context.doctors = data.doctors;
-                        //console.log('doctors : '+this.doctors);
-                    }, (err: HttpErrorResponse) =>{
-                        if( err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    });
+    constructor(private _http : HttpClient, private _tokenService : TokenService, private messageService: MessageService) { }
+
+    /**********************************************************************************************/
+
+    /**
+     * Handle Http operation that failed.
+     * Let the app continue.
+     * @param operation - name of the operation that failed
+     * @param result - optional value to return as the observable result
+     */
+    private handleError<T> (operation = 'operation', result?: T) {
+        return (error: HttpErrorResponse): Observable<T> => {
+
+            // Log l'erreur
+            this.log(`${operation} failed: ${error.message}`);
+
+            if( error.error instanceof Error){
+                this.log('An error occurred: ' + error.error.message)
+            }else{
+                this.log(`Backend returned code ${error.status}, body was: ${error.error}`);
+                if(error.status == 401){
+                    this.log("refreshing token");
+                    this._tokenService.refreshMyToken();
+                }
+            }
+
+            //Séparation pour les logs suivants
+            this.messageService.add('-----------------------------------------------------------');
+
+            // Let the app keep running by returning an empty result.
+            return of(result as T);
+        };
     }
 
-    callRooms(){
-        return this._http.get('/api/json/rooms', this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data => {
-                        this.context.rooms = data.rooms;
-                        for(let i=0; i < this.context.rooms.length; i++){
-                            this.context.roomNames[this.context.rooms[i].id] = this.context.rooms[i].name;
-                        }
-                        //console.log('rooms : '+this.rooms);
-                    }, (err: HttpErrorResponse) =>{
-                        if( err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    });
+    /** Log dans le messageService */
+    private log(message: string) {
+        console.log(message);
+        this.messageService.add('requestService: ' + message);
     }
 
-    findCustomerByPatientId(id : number){
-        return this._http.get('/api/json/customer/0/'+id, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data => {
-                        this.context.setCustomers([data.customer]);
-                        //console.log('rooms : '+this.rooms);
-                    }, (err: HttpErrorResponse) =>{
-                        if( err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    });
+    /**********************************************************************************************/
+
+    getDoctors(): Observable<Doctor[]>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.get<Doctor[]>('/api/json/doctors', {headers})
+            .pipe(
+                tap(doctors => this.log(`fetched doctors =${doctors}`)),
+                catchError(this.handleError('getDoctors', []))
+            );
     }
 
-    findPatientsByCustomerId(id : number){
-        return this._http.get('/api/json/patients?customer='+id, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data => {
-                        //this.context.patients = patients.patients;
-                        this.context.setPatients(data.patients);
-                        //console.log('rooms : '+this.rooms);
-                    }, (err: HttpErrorResponse) =>{
-                        if( err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    });
+    getRooms(): Observable<Room[]>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.get<Room[]>('/api/json/rooms', {headers})
+            .pipe(
+                tap(rooms => this.log(`fetched rooms =${rooms}`)),
+                catchError(this.handleError('getRooms', []))
+            );
     }
 
-    findCustomersByIncompleteName(name : string){
-        return this._http.get('/api/json/customers/'+name, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data => {
-                        this.context.setCustomers(data.customers);
-                    }, (err: HttpErrorResponse) =>{
-                        if( err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    });
+    findCustomerByPatientId(id : number): Observable<Customer>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.get<Customer>('/api/json/customer/0/'+id, {headers})
+            .pipe(
+                tap(customer => this.log(`found customer by patient id`)),
+                catchError(this.handleError('findCustomerByPatientId', []))
+            );
     }
 
-    addRoom(data : FormData){
-        return this._http.post('/api/create/room', data, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe()
-                    , (err: HttpErrorResponse) =>{
-                        if(err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    };
+    findPatientsByCustomerId(id : number): Observable<Patient[]>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.get<Patient[]>('/api/json/patients?customer='+id, {headers})
+            .pipe(
+                tap(patients => this.log(`found patients by customer id`)),
+                catchError(this.handleError('findPatientsByCustomerId', []))
+            );
     }
 
-    removeRoom(name : string){
-        return this._http.post('/api/delete/room/0/'+name, null, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe()
-                    , (err: HttpErrorResponse) =>{
-                        if(err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    };
+    findCustomersByIncompleteName(name : string): Observable<Customer[]>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.get<Customer[]>('/api/json/customers/'+name, {headers})
+            .pipe(
+                tap(customers => this.log(`found customers by incomplete name`)),
+                catchError(this.handleError('findCustomersByIncompleteName', []))
+            );
     }
 
-    addCustomer(data: FormData){
-        return this._http.post('/api/create/customer', data, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data =>{
-                        this.context.refresh();
-                    })
-                    , (err: HttpErrorResponse) =>{
-                        if(err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    };
+    /*
+    searchRooms(term: string): Observable<Room[]> {
+        if (!term.trim()) {
+            // if not search term, return empty hero array.
+            return of([]);
+        }
+
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.get<Room[]>('/api/json/rooms/'+term, {headers}).pipe(
+            tap((rooms: Room[]) => {
+                if(rooms.length == 0){
+                    this.log(`didn't find any rooms matching "${term}"`);
+                }else{
+                    this.log(`found rooms matching "${term}"`);
+                }
+            }),
+            catchError(this.handleError<Room[]>('searchRooms', []))
+        );
+    }*/
+
+    addDoctor(data: FormData): Observable<Doctor>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.post<Doctor>('/api/create/doctor', data, {headers})
+            .pipe(
+                tap((doctor: Doctor) => this.log(`added customer with id=${doctor.id}`)),
+                catchError(this.handleError<Doctor>('addDoctor'))
+            );
     }
 
-    modifyCustomer(id: number, data: FormData){
-        return this._http.post('/api/update/customer/'+id, data, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data =>{
-                        this.context.refresh();
-                    })
-                    , (err: HttpErrorResponse) =>{
-                        if(err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    };
+    modifyDoctor(id: number, data: FormData): Observable<Doctor>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.post<Doctor>('/api/update/doctor/'+id, data, {headers})
+            .pipe(
+                tap((doctor: Doctor) => this.log(`updated doctor: ${doctor}`)),
+                catchError(this.handleError<Doctor>('modifyDoctor'))
+            );
     }
 
-    removeCustomer(id : number){
-        return this._http.post('/api/delete/customer/'+id, null, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data =>{
-                        this.context.refresh();
-                    })
-                    , (err: HttpErrorResponse) =>{
-                        if(err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    };
+    removeDoctor(id : number): Observable<Doctor>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.delete<Doctor>('/api/delete/doctor/'+id, {headers})
+            .pipe(
+                tap(_ => this.log(`removed doctor with id=${id}`)),
+                catchError(this.handleError<Doctor>('removeDoctor'))
+            );
     }
 
-    addPatient(data: FormData){
-        return this._http.post('/api/create/patient', data, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data =>{
-                        this.context.refresh();
-                    })
-                    , (err: HttpErrorResponse) =>{
-                        if(err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    };
+    addRoom(data : FormData): Observable<Room>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.post<Room>('/api/create/room', data, {headers})
+            .pipe(
+                tap((room: Room) => this.log(`added room with id=${room.id}`)),
+                catchError(this.handleError<Room>('addRoom'))
+            );
     }
 
-    modifyPatient(id: number, data: FormData){
-        return this._http.post('/api/update/patient/'+id, data, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data =>{
-                        this.context.refresh();
-                    })
-                    , (err: HttpErrorResponse) =>{
-                        if(err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    };
+    removeRoom(name : string): Observable<Room>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.delete<Room>('/api/delete/room/0/'+name, {headers})
+            .pipe(
+                tap((room: Room) => this.log(`removed room with id=${room.id}`)),
+                catchError(this.handleError<Room>('removeRoom'))
+            );
     }
 
-    removePatient(id: number){
-        return this._http.post('/api/delete/patient/'+id, null, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data =>{
-                        this.context.refresh();
-                    })
-                    , (err: HttpErrorResponse) =>{
-                        if(err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    };
+    addCustomer(data: FormData): Observable<Customer>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.post<Customer>('/api/create/customer', data, {headers})
+            .pipe(
+                tap((customer: Customer) => this.log(`added customer with id=${customer.id}`)),
+                catchError(this.handleError<Customer>('addCustomer'))
+            );
     }
 
-    addAppointment(data: FormData){
-        return this._http.post('/api/create/appointment', data, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data =>{
-                        this.context.refresh();
-                    })
-                    , (err: HttpErrorResponse) =>{
-                        if(err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    };
+    modifyCustomer(id: number, data: FormData): Observable<Customer>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.post('/api/update/customer/'+id, data, {headers})
+            .pipe(
+                tap((customer: Customer) => this.log(`updated customer: ${customer}`)),
+                catchError(this.handleError<Customer>('modifyCustomer'))
+            );
     }
 
-    modifyAppointment(date: string, patientId: string, data: FormData){
-        return this._http.post('/api/update/appointment/'+date+"/"+patientId, data, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data =>{
-                        this.context.refresh();
-                    })
-                    , (err: HttpErrorResponse) =>{
-                        if(err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    };
+    removeCustomer(id : number): Observable<Customer>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.delete<Customer>('/api/delete/customer/'+id, {headers})
+            .pipe(
+                tap(_ => this.log(`removed customer with id=${id}`)),
+                catchError(this.handleError<Customer>('removeCustomer'))
+            );
     }
 
-    removeAppointement(date: string, patientId: string){
-        return this._http.post('/api/delete/appointment/'+date+"/"+patientId, null, this._tokenService.getMyToken())
-                    .map((res: Response) => res.json())
-                    .subscribe(data =>{
-                        this.context.refresh();
-                    })
-                    , (err: HttpErrorResponse) =>{
-                        if(err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err}`);
-                            if(err.status == 401){
-                                this._tokenService.refreshMyToken();
-                            }
-                        }
-                    };
+    addPatient(data: FormData): Observable<Patient>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.post<Patient>('/api/create/patient', data, {headers})
+            .pipe(
+                tap((patient: Patient) => this.log(`added patient with id=${patient.id}`)),
+                catchError(this.handleError<Patient>('addPatient'))
+            );
+    }
+
+    modifyPatient(id: number, data: FormData): Observable<Patient>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.post('/api/update/patient/'+id, data, {headers})
+            .pipe(
+                tap((patient: Patient) => this.log(`updated patient: ${patient}`)),
+                catchError(this.handleError<Patient>('modifyPatient'))
+            );
+    }
+
+    removePatient(id: number): Observable<Patient>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.delete<Patient>('/api/delete/patient/'+id, {headers})
+            .pipe(
+                tap(_ => this.log(`removed patient with id=${id}`)),
+                catchError(this.handleError<Patient>('removePatient'))
+            );
+    }
+
+    addAppointment(data: FormData): Observable<Appointment>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.post<Appointment>('/api/create/appointment', data, {headers})
+            .pipe(
+                tap((appointment: Appointment) => this.log(`added appointment with id=${appointment.id}`)),
+                catchError(this.handleError<Appointment>('addAppointment'))
+            );
+    }
+
+    modifyAppointment(date: string, patientId: string, data: FormData): Observable<Appointment>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.post('/api/update/appointment/'+date+"/"+patientId, data, {headers})
+            .pipe(
+                tap((appointment: Appointment) => this.log(`updated Appointment:${appointment} on date=${date} for patient id=${patientId}`)),
+                catchError(this.handleError<Appointment>('modifyAppointment'))
+            );
+    }
+
+    removeAppointment(date: string, patientId: string): Observable<Appointment>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.delete<Appointment>('/api/delete/appointment/'+date+"/"+patientId, {headers})
+            .pipe(
+                tap(_ => this.log(`removed Appointment on date=${date} for patient id=${patientId}`)),
+                catchError(this.handleError<Appointment>('removeAppointment'))
+            );
     }
 }

@@ -1,22 +1,12 @@
 <pm-users></pm-users>
 <main>
-    <form 
-        id="doctor"
-        novalidate
-        #doctorForm="ngForm">
+    <form id="doctor">
         <div class="fieldset" id="infos">
             <label for="name">
                 <span>Name</span>
-                <input 
-                    id="name" 
-                    name="name" 
-                    type="text"
-                    [(ngModel)]="form_name"
-                    #nameVar="ngModel"
-                    list="doctors"
-                    (ngModelChange)="isNewUser()">
+                <input id="name" name="name" type="search" list="doctors" [formControl]="searchField">
                 <datalist id="doctors">
-                    <option *ngFor="let doctor of doctors" value="{{doctor.name}}">
+                    <option *ngFor="let doctor of doctorsSearchList | async" value="{{doctor.name}}">
                 </datalist>
             </label>
             <label for="rooms">
@@ -43,13 +33,13 @@
             </div>
         </div>
         <div class="fieldset" id="actions">
-            <button *ngIf="newUser" type="submit">
+            <button *ngIf="newDoctor" type="submit" id="new" (click)="submit('new')">
                 Create
             </button>
-            <button *ngIf="!newUser" type="submit">
+            <button *ngIf="!newDoctor" type="submit" id="modify" (click)="submit('modify')">
                 Modify
             </button>
-            <button type="submit">
+            <button type="submit" id="remove" (click)="submit('remove')">
                 Remove
             </button>
         </div>

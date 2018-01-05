@@ -39,15 +39,16 @@ public class Controller {
                              HttpServletRequest request) {
        if (this.classMap.get(strClass) != null
                 && (!strClass.equals("appointment") || this.getElementById(strClass, request.getParameter("date"), request.getParameter("patient")) == null)) { // verifie qu'il n'existe pas de rdv à cette date avec ce patient
-            try {
+           try {
                 IVetappElement e = IVetappElement.class.cast(this.classMap.get(strClass).getMethod("generate", Map.class).invoke(null, request.getParameterMap()));
                 if (e != null) {
                     vetappElementRepository.save(e);
-                    return "1";
+
+                    return objectToString(e, "json", this.classMap.get(strClass));
                 }
             } catch (Exception e) {}
         }
-        return "0";
+        return "";
     }
 
     @RequestMapping(value = {"/update/{class}/{id}","/update/{class}/{id}/{patient_id}"}, method = RequestMethod.POST)
@@ -59,21 +60,21 @@ public class Controller {
         if (e != null) {
             e.update(request.getParameterMap());
             vetappElementRepository.update(e);
-            return "1";
+            return objectToString(e, "json", this.classMap.get(strClass));
         }
-        return "0";
+        return "";
     }
 
-    @RequestMapping(value = {"/delete/{class}/{id}", "/delete/{class}/{id}/{patient_id}"}, method = RequestMethod.POST)
+    @RequestMapping(value = {"/delete/{class}/{id}", "/delete/{class}/{id}/{patient_id}"}, method = RequestMethod.DELETE)
     public String deleteElement(@PathVariable("class") String strClass,
                                 @PathVariable("id") String strId,
                                 @PathVariable(value="patient_id", required=false) String strPatientId) {
         IVetappElement e = this.getElementById(strClass, strId, strPatientId);
         if (e != null) {
             vetappElementRepository.delete(e);
-            return "1";
+            return objectToString(e, "json", this.classMap.get(strClass));
         }
-        return "0";
+        return "";
     }
 
     private String objectToString(Object object, String strMarkup, Class c) {
@@ -91,11 +92,17 @@ public class Controller {
             case "json":
                 try {
                     JSONObject jsonObject;
+                    String cname = c.getSimpleName().toLowerCase();
+
+                    //Fix pour les horaires de travail des médecins
+                    String myXML = objectToString((object), "xml", c);
+                    myXML = myXML.replaceAll("(?<=\\d{6}+)<", "\"<"); // any < preceded by digits
+                    myXML = myXML.replaceAll(">(?=\\d{6}+)", ">\""); // any > followed by digits
+
                     if (object instanceof VetappElements) {
-                        String cname = c.getSimpleName().toLowerCase();
                         JSONArray jsonArray;
                         try {
-                            Object tmp = ((JSONObject) XML.toJSONObject(objectToString((object), "xml", c)).get("vetappElements")).get(cname);
+                            Object tmp = ((JSONObject) XML.toJSONObject(myXML).get("vetappElements")).get(cname);
                             if (tmp instanceof JSONArray) {
                                 jsonArray = (JSONArray) tmp;
                             } else {
@@ -107,10 +114,11 @@ public class Controller {
                         }
                         jsonObject = new JSONObject();
                         jsonObject.put(cname + "s", jsonArray);
+                        return jsonObject.getJSONArray(cname + "s").toString();
                     } else {
-                        jsonObject = XML.toJSONObject(objectToString(object, "xml", c));
+                        jsonObject = XML.toJSONObject(myXML);
                     }
-                    return jsonObject.toString();
+                    return jsonObject.getJSONObject(cname).toString();
                 } catch (Exception e) {}
                 break;
         }

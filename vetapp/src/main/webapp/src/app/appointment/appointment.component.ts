@@ -1,18 +1,17 @@
 import { Component, OnInit, IterableDiffers } from '@angular/core';
-import { Http, Response } from '@angular/http';
 import { NgStyle } from '@angular/common';
 import { NgForm } from '@angular/forms';
 import { NgModel } from '@angular/forms';
 import { TokenService } from '../service/token.service';
 import { DoctorIdPipe } from './doctorid.component';
 import { RequestService } from '../service/request.service';
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 
 @Component({
     templateUrl: './appointment.component.html',
     styleUrls: ['./appointment.component.css']
 })
 export class AppointmentComponent implements OnInit{
-    apisrv : string = "http://localhost:8080";
     openingHour : number = 8;
     closingHour : number = 18;
     date = new Date();
@@ -45,12 +44,11 @@ export class AppointmentComponent implements OnInit{
 
     updateAppointement : boolean = false;
 
-    constructor(private _http: Http, private _tokenService : TokenService, private _iterableDiffers: IterableDiffers, private _requestService : RequestService){
-        this._requestService.context = this;
+    constructor(private _http: HttpClient, private _tokenService : TokenService, private _iterableDiffers: IterableDiffers, private _requestService : RequestService){
         this.iterableDiffer = this._iterableDiffers.find([]).create(null);
         this.roomColors = [["#E57373","#D32F2F"],["#64B5F6","#1976D2"],["#AED581","#689F38"]];
-        this._requestService.callRooms();
-        this._requestService.callDoctors();
+        this._requestService.getRooms();
+        this._requestService.getDoctors();
         this.update();
     }
     ngOnInit() {
@@ -110,7 +108,8 @@ export class AppointmentComponent implements OnInit{
             }
         }
         for (var i = 0; i < nbDays; i++) {
-            this._http.get("/api/json/appointments/" + this.yyyy_mm_dd(date) , this._tokenService.getMyToken())
+            const headers: HttpHeaders = this._tokenService.getMyToken();
+            this._http.get("/api/json/appointments/" + this.yyyy_mm_dd(date) , {headers})
             .map((res: Response) => res.json())
             .subscribe(function(date, appointments){
 				let i, hf_duplicate = false;
@@ -119,6 +118,7 @@ export class AppointmentComponent implements OnInit{
 						hf_duplicate = true;
 					}
 				}
+
 				if (!hf_duplicate) {
 					this.days.push({date: date, appointments: appointments.appointments, isToday: date.toDateString() === (new Date()).toDateString() });
 					this.days.sort((a:any, b:any) => a.date - b.date);
@@ -177,7 +177,7 @@ export class AppointmentComponent implements OnInit{
         this.form.customer.disabled = true;
     }
     removeAppointment(){
-        this._requestService.removeAppointement(this.form.date.value, this.form.patient.value)
+        this._requestService.removeAppointment(this.form.date.value, this.form.patient.value)
     }
     selectOptionByValue(sObj, value) {
         for (let i = 0; i < sObj.options.length; i++) {

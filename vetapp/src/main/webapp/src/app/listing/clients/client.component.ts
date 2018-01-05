@@ -33,9 +33,7 @@ export class ClientComponent implements OnInit {
   animalTypes : any = [{ name : "chien", id : 1}, {name : "chat", id : 2}];
   breeds : any = [{name : "bichon", id : 1}, {name : "siamois", id : 2}];
 
-  constructor(private _tokenService : TokenService, private _requestService : RequestService, private fb : FormBuilder, private _router: Router, private _route : ActivatedRoute) { 
-    this._requestService.context = this;
-  }
+  constructor(private _tokenService : TokenService, private _requestService : RequestService, private fb : FormBuilder, private _router: Router, private _route : ActivatedRoute) { }
 
   ngOnInit() {
     this.searchCustomerForm = this.fb.group({

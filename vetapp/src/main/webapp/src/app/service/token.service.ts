@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http, Response, Headers, RequestOptions } from '@angular/http';
-import { HttpErrorResponse } from '@angular/common/http';
-import { HttpHeaders } from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 
 @Injectable()
 export class TokenService{
@@ -10,7 +8,7 @@ export class TokenService{
     login : string = null;
     password : string = null;
 
-    constructor(private _http: Http){ }
+    constructor(private _http: HttpClient){ }
 
     getNewToken(login, mdp, callback){
         this.login = login;
@@ -18,14 +16,13 @@ export class TokenService{
 
         let username: string = 'vetapp';
         let password: string = 'Test123*';
-        let headers: Headers = new Headers();
-        headers.append("Authorization", "Basic " + btoa(username + ":" + password));
-        headers.append("Content-Type", "application/x-www-form-urlencoded");
+
+        let headers: HttpHeaders = new HttpHeaders();
+        headers = headers.append("Authorization", "Basic " + btoa(username + ":" + password));
+        headers = headers.append("Content-Type", "application/x-www-form-urlencoded");
         //console.log(headers);
-        const options = new RequestOptions({headers: headers});
-        return this._http.post('/oauth/token?grant_type=password&username='+login+'&password='+mdp, this.data, options)
-                    .map((res: Response) => res.json())
-                    .subscribe(data => {
+
+        return this._http.post('/oauth/token?grant_type=password&username='+login+'&password='+mdp, this.data, {headers}).subscribe(data => {
                         this.data = data;
                         //console.log(data);
                         if(callback){
@@ -41,14 +38,11 @@ export class TokenService{
     refreshMyToken(){
         let username: string = 'vetapp';
         let password: string = 'Test123*';
-        let headers: Headers = new Headers();
-        headers.append("Authorization", "Basic " + btoa(username + ":" + password));
-        headers.append("Content-Type", "application/x-www-form-urlencoded");
-        //console.log(headers);
-        const options = new RequestOptions({headers: headers});
-        return this._http.post('/oauth/token?grant_type=refresh_token&refresh_token='+this.data.refresh_token, this.data, options)
-                    .map((res: Response) => res.json())
-                    .subscribe(data => {
+        let headers: HttpHeaders = new HttpHeaders();
+        headers = headers.append("Authorization", "Basic " + btoa(username + ":" + password));
+        headers = headers.append("Content-Type", "application/x-www-form-urlencoded");
+
+        return this._http.post('/oauth/token?grant_type=refresh_token&refresh_token='+this.data.refresh_token, this.data, {headers}).subscribe(data => {
                         this.data = data;
                         //console.log(data);
                     }, (err: HttpErrorResponse) =>{
@@ -63,13 +57,12 @@ export class TokenService{
                     });
     }
 
-    getMyToken(){
+    getMyToken(): HttpHeaders{
         if(this.data != null){
-            let headers: Headers = new Headers();
-            headers.append("Authorization", "Bearer "+this.data.access_token);
+            const headers = new HttpHeaders().set("Authorization", "Bearer "+this.data.access_token);
             //console.log(headers);
-            const options = new RequestOptions({headers : headers})
-            return options;
+
+            return headers;
         }
     }
 }

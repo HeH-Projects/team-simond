@@ -8,6 +8,7 @@
                 required 
                 [(ngModel)]=user.login
                 name="login"
+                id="login"
                 #loginVar="ngModel"/>
             <span *ngIf="(loginVar.touched || loginVar.dirty) && loginVar.errors">
                 <span *ngIf="loginVar.errors.required">
@@ -21,6 +22,7 @@
                 required
                 [(ngModel)]=user.password
                 name="password"
+                id="password"
                 #passwordVar="ngModel"/>
             <span *ngIf="(passwordVar.touched || passwordVar.dirty) && passwordVar.errors">
                 <span *ngIf="passwordVar.errors.required">

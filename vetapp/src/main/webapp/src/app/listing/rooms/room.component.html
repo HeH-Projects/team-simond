@@ -1,17 +1,15 @@
 <pm-users></pm-users>
 <main>
-    <form id="room" [formGroup]="roomForm">
+    <form id="room">
         <label for="rooms" [ngClass]="{'has-error': roomMessage}">
             <span>Room</span>
-            <input 
-                list="rooms"
-                formControlName="name">
+            <input type="search" list="rooms" [formControl]="searchField">
         </label>
         <span class="message-block" *ngIf="roomMessage">
             {{roomMessage}}
         </span>
         <datalist id="rooms" name="rooms">
-            <option *ngFor="let room of rooms" value="{{room.name}}">
+            <option *ngFor="let room of roomsSearchList | async" value="{{room.name}}">
         </datalist>
         <div *ngIf="newRoom">
             <button type="submit" id="new" (click)="submit('new')">Create</button>
