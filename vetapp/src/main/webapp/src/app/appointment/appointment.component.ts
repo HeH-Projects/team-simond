@@ -1,11 +1,10 @@
 import { Component, OnInit, IterableDiffers } from '@angular/core';
-import { NgStyle } from '@angular/common';
-import { NgForm } from '@angular/forms';
-import { NgModel } from '@angular/forms';
-import { TokenService } from '../service/token.service';
-import { DoctorIdPipe } from './doctorid.component';
 import { RequestService } from '../service/request.service';
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {Room} from "../models/room";
+import {Appointment} from "../models/appointment";
+import {Patient} from "../models/patient";
+import {Customer} from "../models/customer";
+import {Observable} from "rxjs/Observable";
 
 @Component({
     templateUrl: './appointment.component.html',
@@ -15,7 +14,6 @@ export class AppointmentComponent implements OnInit{
     openingHour : number = 8;
     closingHour : number = 18;
     date = new Date();
-    //date = new Date(2017,0,1);
     weekView : boolean;
     
     appointmentDurations = [.5,.75,1];
@@ -26,10 +24,7 @@ export class AppointmentComponent implements OnInit{
     rooms : any = [];
     roomNames : any = [];
     customers : any = [];
-    patients : any = [];
     types : any = [{id:1, name:"Visite"},{id:2, name:"Toilettage"},{id:3, name:"Pédicure"}];
-
-    token : any = null;
 
     popup : any = null;
     form : any = null;
@@ -40,19 +35,99 @@ export class AppointmentComponent implements OnInit{
     form_exam :string;
     iterableDiffer : any = null;
 
+    customersSearchList: Observable<Customer[]>;
+    currentCustomer: Customer;
+    currentPatients: Patient[] = [];
     selectedPatientId : number = null;
 
     updateAppointement : boolean = false;
 
-    constructor(private _http: HttpClient, private _tokenService : TokenService, private _iterableDiffers: IterableDiffers, private _requestService : RequestService){
+    constructor(private _iterableDiffers: IterableDiffers, private _requestService : RequestService){}
+
+    private searchCustomers(term: string): Observable<Customer[]> {
+        let customersList: Customer[] = new Array();
+
+        if (!term.trim()) {
+            return Observable.of(customersList);
+        }
+
+        this.customers.forEach(customer => {
+            if(customer.name.indexOf(term) != -1){
+                customersList.push(customer);
+            }
+
+            if(customer.name == term){
+                this.currentCustomer = this.getCustomerByName(term);
+                this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
+                    this.currentPatients = patients;
+                });
+            }
+        });
+
+        return Observable.of(customersList);
+    }
+
+    private getCustomerByName(name: string): Customer{
+        let answer: Customer = null;
+        for(let i = 0; i < this.customers.length; i++){
+            if(this.customers[i].name == name){
+                answer = this.customers[i];
+                break;
+            }
+        }
+        return answer;
+    }
+
+    private getCustomerById(id: number): Customer{
+        let answer: Customer = null;
+        this.customers.forEach(customer => {
+            if(customer.id == id){
+                answer = customer;
+            }
+        });
+        return answer;
+    }
+
+    updateSearchField(id: number): void{
+        this.currentCustomer = this.getCustomerById(id);
+
+        let matchingCustomers: Customer[] = null;
+        this.searchCustomers(this.currentCustomer.name).subscribe((customers: Customer[]) => {
+                matchingCustomers = customers;
+            });
+        if(matchingCustomers.length <= 1){
+            this.customersSearchList = null;
+        }else{
+            this.customersSearchList = this.searchCustomers(this.currentCustomer.name);
+        }
+
+        this.currentCustomer = this.getCustomerById(id);
+        this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
+            this.currentPatients = patients;
+        });
+
+        this.form_customer = this.currentCustomer.name;
+    }
+
+    ngOnInit() {
         this.iterableDiffer = this._iterableDiffers.find([]).create(null);
         this.roomColors = [["#E57373","#D32F2F"],["#64B5F6","#1976D2"],["#AED581","#689F38"]];
-        this._requestService.getRooms();
-        this._requestService.getDoctors();
+        this._requestService.getRooms().subscribe((rooms: Room[]) => {
+            this.rooms = rooms;
+        });
+        this._requestService.getDoctors().subscribe(doctors => {
+            //Fix pour les horaires de travail des médecins #Sample TextPart Backend
+            doctors.forEach(doctor => {
+                for(let j = 0; j < 7; j++){
+                    doctor[["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][j]] = doctor[["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][j]].replace(/"/g, '');
+                }
+            });
+            this.doctors = doctors;
+        });
+        this._requestService.getCustomers().subscribe((customers: Customer[]) => {
+            this.customers = customers;
+        });
         this.update();
-    }
-    ngOnInit() {
-        this.token = this._tokenService.getMyToken();
     }
 
     range(total){
@@ -82,11 +157,6 @@ export class AppointmentComponent implements OnInit{
     inSlot(doctor, day, hour) {
         return ("000000000000000000000000" + parseInt(doctor[["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][day.date.getDay()]], 16).toString(2)).slice(-24)[hour] == '1';
     }
-    stringToDate(str) {
-        let d =  new Date(str);
-		d.setTime(d.getTime() + (d.getTimezoneOffset() * 60 * 1000));
-		return d;
-    }
     today() {
         this.date = new Date();
         this.update();
@@ -96,10 +166,10 @@ export class AppointmentComponent implements OnInit{
         this.update();
     }
     update() {
-        //console.log(this.weekView);
         this.days = [];
         var date = new Date(this.date), nbDays = 1;
         if (this.weekView) {
+            console.log("weekview");
             nbDays = 7;
             if (date.getDay() === 0) {
                 date.setDate(date.getDate() - 6);
@@ -108,24 +178,28 @@ export class AppointmentComponent implements OnInit{
             }
         }
         for (var i = 0; i < nbDays; i++) {
-            const headers: HttpHeaders = this._tokenService.getMyToken();
-            this._http.get("/api/json/appointments/" + this.yyyy_mm_dd(date) , {headers})
-            .map((res: Response) => res.json())
-            .subscribe(function(date, appointments){
-				let i, hf_duplicate = false;
-				for (i = 0; i < this.days.length; i++) {
-					if (this.days[i].date.getTime() == date.getTime()) {
-						hf_duplicate = true;
-					}
-				}
+            this._requestService.findAppointmentsByDate(this.yyyy_mm_dd(date)).subscribe((appointments: Appointment[]) => {
+                let hf_duplicate = false;
+                for (var i = 0; i < this.days.length; i++) {
+                    if (this.days[i].date.getTime() == date.getTime()) {
+                        hf_duplicate = true;
+                    }
+                }
 
-				if (!hf_duplicate) {
-					this.days.push({date: date, appointments: appointments.appointments, isToday: date.toDateString() === (new Date()).toDateString() });
-					this.days.sort((a:any, b:any) => a.date - b.date);
-				}
-            }.bind(this, date));
-            date = new Date(date);
-            date.setDate(date.getDate() + 1);
+                appointments.forEach((appointment: Appointment) => {
+                    appointment.date = new Date(appointment.date);
+                });
+
+                if (!hf_duplicate) {
+                    this.days.push({date: date, appointments: appointments, isToday: date.toDateString() === (new Date()).toDateString() });
+                    console.log(this.days);
+                    this.days.sort((a:any, b:any) => a.date - b.date);
+                }
+
+                date = new Date(date);
+                console.log(date);
+                date.setDate(date.getDate() + 1);
+            });
         }
     }
 
@@ -138,7 +212,6 @@ export class AppointmentComponent implements OnInit{
         this.popup = document.querySelector('.vetCal-popup');
         this.form = document.querySelector('#vetCal-appointment-form');
         this.updateAppointement = false;
-        //console.log(this.popup);
         this.popup.style.display = "block";
         var f = this.form,
             d = day.date,
@@ -148,11 +221,13 @@ export class AppointmentComponent implements OnInit{
         f.date.value = this.yyyy_mm_dd(d, true);
         f.getElementsByTagName("h3")[0].innerHTML = this.dateToTitle(d) + " " + y;
         this.selectOptionByValue(f.doctor, doctor.id);
-        this.selectedPatientId = null;
         this.form.patient.disabled = false;
         this.form.customer.disabled = false;
+        this.currentCustomer = null;
+        this.customersSearchList = null;
         this.form.customer.value = "";
-        this.patients = [];
+        this.currentPatients = [];
+        this.selectedPatientId = null;
         this.form.room.selectedIndex = -1;
         this.form.type.selectedIndex = -1;
     }
@@ -162,7 +237,7 @@ export class AppointmentComponent implements OnInit{
         this.popup.style.display = "block";        
         this.updateAppointement = true;
         var f = this.form,
-            d = this.stringToDate(appointment.date),
+            d = appointment.date,
             x = d.getHours() + ":" + d.getMinutes();
         f.date.value = this.yyyy_mm_dd(d, true);
         f.getElementsByTagName("h3")[0].innerHTML = this.dateToTitle(d) + " " + x;
@@ -170,14 +245,24 @@ export class AppointmentComponent implements OnInit{
         this.selectOptionByValue(f.room, appointment.roomId);
         this.selectOptionByValue(f.type, appointment.type);
         this.selectedPatientId = appointment.patientId;
-        
-        this._requestService.findCustomerByPatientId(appointment.patientId);
+
+        this._requestService.findCustomerByPatientId(appointment.patientId).subscribe((customer: Customer) => {
+            this.currentCustomer = customer;
+            this.customersSearchList = null;
+            this.form.customer.value = customer.name;
+            this._requestService.findPatientsByCustomerId(customer.id).subscribe((patients: Patient[]) => {
+                this.currentPatients = patients;
+            });
+        });
         
         this.form.patient.disabled = true;
         this.form.customer.disabled = true;
     }
     removeAppointment(){
-        this._requestService.removeAppointment(this.form.date.value, this.form.patient.value)
+        this._requestService.removeAppointment(this.form.date.value, this.form.patient.value).subscribe((appointment: Appointment) => {
+            this.update();
+            (document.querySelector('.vetCal-popup') as HTMLElement).style.display = "none";
+        });
     }
     selectOptionByValue(sObj, value) {
         for (let i = 0; i < sObj.options.length; i++) {
@@ -188,23 +273,14 @@ export class AppointmentComponent implements OnInit{
         }
     }
     onCustomerChange() {
-        //console.log('customer change');
-        var f = this.form,
-            tmp = f.customer.value.split("#");
-        if (tmp.length == 2 && this.patients.length == 0) {
-            this._requestService.findPatientsByCustomerId(parseInt(tmp[1]));
-        } else {
-            if(f.customer.value.length >= 1){
-                this._requestService.findCustomersByIncompleteName(f.customer.value);
-            }
-            this.patients = [];
-        }
+        var f = this.form;
+        this.customersSearchList = this.searchCustomers(f.customer.value);
     }
 
     ngAfterViewChecked(){
         let f = this.form;
         
-        if(this.patients.length >0){
+        if(this.currentPatients.length > 0){
             if (this.selectedPatientId !== null) { // updateAppointment
                 this.selectOptionByValue(f.patient, this.selectedPatientId);
             } 
@@ -221,22 +297,19 @@ export class AppointmentComponent implements OnInit{
         data.append("room_id", form.room.value);
         data.append("type", form.type.value); 
         if(this.updateAppointement){
-            this._requestService.modifyAppointment(form.date.value, form.patient.value, data);
+            this._requestService.modifyAppointment(form.date.value, form.patient.value, data).subscribe((appointment: Appointment) => {
+                this.update();
+                (document.querySelector('.vetCal-popup') as HTMLElement).style.display = "none";
+            });
         }else{
             data.append("patient_id", form.patient.value);
             data.append("doctor_id", form.doctor.value);
             data.append("date", form.date.value);
-            //console.log(form.date);
-            //console.log(form.date.value);
-            this._requestService.addAppointment(data);
+            this._requestService.addAppointment(data).subscribe((appointment: Appointment) => {
+                this.update();
+                (document.querySelector('.vetCal-popup') as HTMLElement).style.display = "none";
+            });
         }
-    }
-
-    setCustomers(customers){
-        this.customers = customers;
-    }
-    setPatients(patients){
-        this.patients = patients;
     }
 
     refresh(){

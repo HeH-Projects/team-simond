@@ -44,7 +44,6 @@ export class ClientComponent implements OnInit {
 
   private searchCustomers(term: string): Observable<Customer[]> {
       let customersList: Customer[] = new Array();
-      console.log("search customer");
 
       if (!term.trim()) {
           return Observable.of(customersList);
@@ -79,7 +78,6 @@ export class ClientComponent implements OnInit {
       this.customers.forEach(customer => {
           if(customer.id == id){
               answer = customer;
-              console.log("customer with matching id: " + customer.id);
           }
       });
       return answer;
@@ -106,7 +104,6 @@ export class ClientComponent implements OnInit {
 
   isPatientType(id: number, type: number): boolean{
       let answer: boolean = false;
-      console.log("checking "+ id +" type: " + type);
       this.currentPatients.forEach(patient =>{
           if(patient.id == id){
               if(patient.type == type){
@@ -119,7 +116,6 @@ export class ClientComponent implements OnInit {
 
   isPatientBreed(id: number, breed: number): boolean{
       let answer: boolean = false;
-      console.log("checking "+ id +" breed: " + breed);
       this.currentPatients.forEach(patient =>{
           if(patient.id == id){
               if(patient.breed == breed){

@@ -22,8 +22,6 @@ export class LoginComponent {
 
     submit(loginForm : NgForm){
         this.loginForm = loginForm
-        //console.log(loginForm.form);
-        //console.log('Saved: ' + JSON.stringify(loginForm.value));
         this._tokenService.getNewToken(this.user.login, this.user.password, function(token){
             if(token == "error"){
                 this.badLogin = true;

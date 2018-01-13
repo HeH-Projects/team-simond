@@ -66,7 +66,6 @@ export class DoctorComponent implements OnInit{
 
                 for(let j = 0; j < 7; j++){
                     let x = parseInt(doctor[this.days[j]], 16);
-                    console.log(this.days[j] + " has " + doctor[this.days[j]]);
                     for(let i = 0; i<24; i++){
                         this.timeSlots[this.days[j]][i] = x >> (23-i) & 1;
                     }

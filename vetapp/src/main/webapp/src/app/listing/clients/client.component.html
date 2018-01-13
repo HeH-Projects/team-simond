@@ -2,10 +2,10 @@
 <main>
 	<header>
 		<form id="customer">
-			<label for="CustomerSearch" [ngClass]="{'has-error': customerSearchMessage}">
+			<label for="customerSearch" [ngClass]="{'has-error': customerSearchMessage}">
 				<span>Client</span>
 			</label>
-			<input id="CustomerSearch" type="search" [formControl]="searchField">
+			<input id="customerSearch" type="search" [formControl]="searchField">
 			<ul class="search-result">
 				<li *ngFor="let customer of customersSearchList | async" (click)="updateSearchField(customer.id)">
 					{{customer.name}}

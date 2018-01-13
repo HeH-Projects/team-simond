@@ -50,7 +50,6 @@ export class RequestService {
 
     /** Log dans le messageService */
     private log(message: string) {
-        console.log(message);
         this.messageService.add('requestService: ' + message);
     }
 

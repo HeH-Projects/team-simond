@@ -20,11 +20,9 @@ export class TokenService{
         let headers: HttpHeaders = new HttpHeaders();
         headers = headers.append("Authorization", "Basic " + btoa(username + ":" + password));
         headers = headers.append("Content-Type", "application/x-www-form-urlencoded");
-        //console.log(headers);
 
         return this._http.post('/oauth/token?grant_type=password&username='+login+'&password='+mdp, this.data, {headers}).subscribe(data => {
                         this.data = data;
-                        //console.log(data);
                         if(callback){
                             callback(data);
                         }
@@ -44,7 +42,6 @@ export class TokenService{
 
         return this._http.post('/oauth/token?grant_type=refresh_token&refresh_token='+this.data.refresh_token, this.data, {headers}).subscribe(data => {
                         this.data = data;
-                        //console.log(data);
                     }, (err: HttpErrorResponse) =>{
                         if( err.error instanceof Error){
                             console.log('An error occurred: ', err.error.message)
@@ -60,8 +57,6 @@ export class TokenService{
     getMyToken(): HttpHeaders{
         if(this.data != null){
             const headers = new HttpHeaders().set("Authorization", "Bearer "+this.data.access_token);
-            //console.log(headers);
-
             return headers;
         }
     }

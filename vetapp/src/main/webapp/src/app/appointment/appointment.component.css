@@ -1,7 +1,8 @@
- * {
+* {
     padding: 0;
     margin: 0;
 }
+
 .vetCal {
     width: 100%;
     height: calc(100vh - 72px);

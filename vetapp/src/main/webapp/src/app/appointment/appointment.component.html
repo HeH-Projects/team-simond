@@ -1,13 +1,8 @@
-<div *ngIf="!token">
-    <p>You are not authentificated. Please go to login page -> <a [routerLink]="['/login']"> here</a> .</p>
-</div>
-<div *ngIf="token" class="vetCal">
+<div class="vetCal">
     <div class="vetCal-popup">
-        <div class="vetCal-popup-background" (click)="$event.srcElement.parentNode.style.display='none'"></div>
-        <form id="vetCal-appointment-form"  
-            novalidate 
-            #vetCalAppointmentForm="ngForm"
-            (ngSubmit)="submit(vetCalAppointmentForm)">
+        <div class="vetCal-popup-background" (click)="$event.target.parentNode.style.display='none'"></div>
+        <form id="vetCal-appointment-form"
+            (ngSubmit)="submit()">
             <h3></h3>
             <input type="hidden" name="date" value="">
             <label>
@@ -22,16 +17,16 @@
             </label>
             <label>
                 Client:
-                <input 
-                    type="text" 
-                    name="customer" 
-                    list="customers" 
-                    [(ngModel)]="form_customer"
-                    #customer="ngModel"
-                    (ngModelChange)="onCustomerChange()">
-                <datalist id="customers">
-                    <option *ngFor="let customer of customers" value="{{customer.name}} #{{customer.id}}">
-                </datalist>
+                <input name="customer"
+                       type="search"
+                       [(ngModel)]="form_customer"
+                       #customer="ngModel"
+                       (ngModelChange)="onCustomerChange()">
+                <ul class="search-result">
+                    <li *ngFor="let customer of customersSearchList | async" (click)="updateSearchField(customer.id)">
+                        {{customer.name}}
+                    </li>
+                </ul>
             </label>
             <label>
                 Patient:
@@ -39,7 +34,7 @@
                     name="patient"
                     [(ngModel)]="form_patient"
                     #patient="ngModel">
-                    <option *ngFor="let patient of patients" value="{{patient.id}}">{{patient.name}}</option>
+                    <option *ngFor="let patient of currentPatients" value="{{patient.id}}" [selected]="patient.id == selectedPatientId">{{patient.name}}</option>
                 </select>
             </label>
             <label>
@@ -94,8 +89,8 @@
 							[style.background-color]="roomColors[appointment.roomId % roomColors.length][0]"
 							[style.box-shadow]="'inset 4px 0 0' + roomColors[appointment.roomId % roomColors.length][1]"
 							[style.color]="roomColors[appointment.roomId % roomColors.length][1]"
-							[style.height.%]="100 * appointmentDurations[appointment.type] / (closingHour - openingHour)"
-							[style.top.%]="100 * ((stringToDate(appointment.date).getHours() + (stringToDate(appointment.date).getMinutes() / 60)) - openingHour) / (closingHour - openingHour)">
+							[style.height.%]="100 * appointmentDurations[(appointment.type-1)] / (closingHour - openingHour)"
+							[style.top.%]="100 * ((appointment.date.getHours() + (appointment.date.getMinutes() / 60)) - openingHour) / (closingHour - openingHour)">
                             {{roomNames[appointment.roomId]}}
                         </div>
                         <div *ngFor="let n of range(closingHour - openingHour)"
