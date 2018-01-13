@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { TokenService } from '../../service/token.service';
 import { RequestService } from '../../service/request.service';
 import {FormControl, Validators, AbstractControl} from '@angular/forms';
 import {Room} from "../../models/room";
@@ -10,7 +9,7 @@ import 'rxjs/add/operator/distinctUntilChanged';
 @Component({
   selector: 'pm-room',
   templateUrl: './room.component.html',
-  styleUrls: ['./room.component.css']
+  styleUrls: ['./../../bootstrap/reset.css', './room.component.css']
 })
 export class RoomComponent implements OnInit {
 
@@ -21,11 +20,11 @@ export class RoomComponent implements OnInit {
   searchField: FormControl;
 
   private validationMessages = {
-    required : 'Enter the name of a room.',
-    pattern : 'Enter a valid room name.'
+      required : "Veuillez entrer le nom d'une salle.",
+      pattern : "Veuillez entrer un nom de salle correct."
   };
 
-  constructor(private _tokenService : TokenService, private _requestService : RequestService) { }
+  constructor(private _requestService : RequestService) { }
 
   private searchRooms(term: string): Observable<Room[]> {
      let roomsList: Room[] = new Array();
@@ -52,7 +51,7 @@ export class RoomComponent implements OnInit {
   ngOnInit() : void {
      this._requestService.getRooms().subscribe(rooms => this.rooms = rooms);
 
-     this.searchField = new FormControl("", [Validators.required, Validators.pattern('^[A-Za-z0-9]+$')]);
+     this.searchField = new FormControl("", [Validators.required, Validators.pattern(/^\S[A-Za-z0-9\s]+\S$/)]);
      this.searchField.valueChanges.distinctUntilChanged().subscribe( val => {
         this.roomsSearchList = this.searchRooms(val);
 
@@ -79,15 +78,17 @@ export class RoomComponent implements OnInit {
                  });
                break;
             case 'remove' :
-               this._requestService.removeRoom(this.searchField.value).subscribe((room: Room) => {
-                  this.rooms.forEach( (roomInList: Room) => {
-                     //Une méthode 'isEqualTo' dans le modèle 'Room' aurait été plus appropriée mais je n'ai pas réussi
-                     if(roomInList.id == room.id && roomInList.name == room.name){
-                        this.rooms.splice(this.rooms.indexOf(roomInList), 1);
-                        this.newRoom = true;
-                     }
-                  });
-               });
+               if(!this.newRoom){
+                   this._requestService.removeRoom(this.searchField.value).subscribe((room: Room) => {
+                       this.rooms.forEach( (roomInList: Room) => {
+                           //Une méthode 'isEqualTo' dans le modèle 'Room' aurait été plus appropriée mais je n'ai pas réussi
+                           if(roomInList.id == room.id && roomInList.name == room.name){
+                               this.rooms.splice(this.rooms.indexOf(roomInList), 1);
+                               this.newRoom = true;
+                           }
+                       });
+                   });
+               }
                break;
         }
      }

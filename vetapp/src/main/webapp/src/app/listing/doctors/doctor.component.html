@@ -2,16 +2,16 @@
 <main>
     <form id="doctor">
         <div class="fieldset" id="infos">
-            <label for="name">
+            <label>
                 <span>Name</span>
-                <input id="name" name="name" type="search" list="doctors" [formControl]="searchField">
+                <input id="name" type="search" list="doctors" [formControl]="searchField">
                 <datalist id="doctors">
                     <option *ngFor="let doctor of doctorsSearchList | async" value="{{doctor.name}}">
                 </datalist>
             </label>
-            <label for="rooms">
+            <label>
                 <span>Room</span>
-                <select id="rooms" name="rooms" form="doctor">
+                <select id="rooms" form="doctor">
                     <option *ngFor="let room of rooms" value="{{room.id}}">{{room.name}}</option>
                 </select>
             </label>
@@ -34,13 +34,13 @@
         </div>
         <div class="fieldset" id="actions">
             <button *ngIf="newDoctor" type="submit" id="new" (click)="submit('new')">
-                Create
+                Ajouter
             </button>
             <button *ngIf="!newDoctor" type="submit" id="modify" (click)="submit('modify')">
-                Modify
+                Modifier
             </button>
-            <button type="submit" id="remove" (click)="submit('remove')">
-                Remove
+            <button *ngIf="!newDoctor" type="submit" id="remove" (click)="submit('remove')">
+                Supprimer
             </button>
         </div>
     </form>

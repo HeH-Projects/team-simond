@@ -13,7 +13,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         //http.csrf();
 
         // only secure channel, https, is allowed
-        http.requiresChannel().anyRequest().requiresSecure();
+        //http.requiresChannel().anyRequest().requiresSecure();
 
         // static resources
         http.authorizeRequests().antMatchers("/index.html", "/", "/*.js", "/*.css", "/assets/**").permitAll();

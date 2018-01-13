@@ -1,7 +1,7 @@
-import {AppointmentId} from "./appointmentId";
-
 export interface Appointment {
-    id: AppointmentId;
+    date: Date;
+    doctorId: number;
+    patientId: number;
     roomId: number;
     type: number;
 }

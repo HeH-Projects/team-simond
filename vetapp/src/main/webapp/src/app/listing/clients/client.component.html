@@ -1,65 +1,91 @@
 <pm-users></pm-users>
-<form *ngIf="customer == null" [formGroup]="searchCustomerForm">
-	<input list="customers" formControlName="customerSearchName" [ngClass]="{'has-error': customerSearchMessage}">
-	<datalist id="customers">
-		<option *ngFor="let customer of customers" value="{{customer.name}} #{{customer.id}}">
-	</datalist>
-	<span class="message-block" *ngIf="customerSearchMessage">
-		{{customerSearchMessage}}
-	</span>
-	<button (click)="submitCustomer('new')">Add</button>
-</form>
-<section *ngIf="customer != null">
+<main>
 	<header>
-		<input type="checkbox" name="edit" id="edit-customer" checked>
-		<form id="customer" [formGroup]="updateCustomerForm">
-			<div>
-				<input name="name" type="text" value="{{customer.name}}" formControlName="customerUpdateName">
-			</div>
-			<span class="message-block" *ngIf="customerUpdateMessage">
-				{{customerUpdateMessage}}
+		<form id="customer">
+			<label for="CustomerSearch" [ngClass]="{'has-error': customerSearchMessage}">
+				<span>Client</span>
+			</label>
+			<input id="CustomerSearch" type="search" [formControl]="searchField">
+			<ul class="search-result">
+				<li *ngFor="let customer of customersSearchList | async" (click)="updateSearchField(customer.id)">
+					{{customer.name}}
+				</li>
+			</ul>
+			<h2 *ngIf="currentCustomer">{{currentCustomer.id}}:{{currentCustomer.name}}</h2>
+			<span class="message-block" *ngIf="customerSearchMessage">
+				{{customerSearchMessage}}
 			</span>
-			<div>
-				<input class="button" type="submit" value="V" (click)="submitCustomer('modify')">
-			<span class="button" id="delete-customer" (click)="submitCustomer('remove')">X</span>
-		</div>
+			<button *ngIf="newCustomer" type="submit" id="newCustomer" (click)="submitCustomer('new')">
+				Ajouter
+			</button>
+			<button *ngIf="!newCustomer" type="submit" id="modifyCustomer" (click)="submitCustomer('modify')">
+				Modifier
+			</button>
+			<button *ngIf="!newCustomer" type="submit" id="removeCustomer" (click)="submitCustomer('remove')">
+				Supprimer
+			</button>
 		</form>
 	</header>
-	<button (click)="customerChange()">customer change</button>
-	<article *ngFor="let patient of patients" id="patient_{{patient.id}}">
-		<input type="checkbox" name="edit" id="edit-patient-{{patient.id}}" checked>
-		<form [formGroup]="updatePatientForm">
-			<div>
-				<label>
-					<span>Nom:</span><input type="text" value="{{patient.name}}" formControlName="patientName">
-				</label>
-				<span class="message-block" *ngIf="patientNameMessage">
-						{{patientNameMessage}}
-					</span>
-				<label>
-					<span>Type:</span><select formControlName="patientType">
-						<option *ngFor="let type of animalTypes" value="{{type.id}}">{{type.name}}</option>
-					</select>
-				</label>
-				<span class="message-block" *ngIf="patientTypeMessage">
-						{{patientTypeMessage}}
-					</span>
-				<label>
-					<span>Race:</span><select formControlName="patientBreed">
-						<option *ngFor="let breed of breeds" value="{{breed.id}}">{{breed.name}}</option>
-					</select>
-				</label>
-				<span class="message-block" *ngIf="patientBreedMessage">
-						{{patientBreedMessage}}
-					</span>
-			</div>
-			<div>
-				<input class="button" type="submit" value="V" (click)="submitPatient(patient.id, 'modify')">
-				<span class="button" id="delete-patient-{{patient.id}}" (click)="submitPatient(patient.id, 'remove')">X</span>
-			</div>
-		</form>
-	</article>
-	<footer>
-		<button (click)="addPatient()">Add patient</button>
-	</footer>
-</section>
+	<section>
+		<ng-container *ngIf="currentPatients">
+			<article *ngFor="let patient of currentPatients">
+				<form id="patient_{{patient.id}}">
+					<div>
+						<label>
+							<span>Nom:</span><input name="name" type="text" value="{{patient.name}}">
+						</label>
+						<label>
+							<span>Type:</span>
+							<select name="type">
+								<ng-container *ngFor="let type of animalTypes">
+									<option *ngIf="isPatientType(patient.id, type.id); else notSelectedType" value="{{type.id}}" selected>{{type.name}}</option>
+									<ng-template #notSelectedType>
+										<option value="{{type.id}}">{{type.name}}</option>
+									</ng-template>
+								</ng-container>
+							</select>
+						</label>
+						<label>
+							<span>Race:</span>
+							<select name="breed">
+								<option *ngFor="let breed of breeds" value="{{breed.id}}" [selected]="isPatientBreed(patient.id, breed.id)">{{breed.name}}</option>
+							</select>
+						</label>
+					</div>
+					<div>
+						<button type="submit" id="modifyPatient{{patient.id}}" (click)="submitPatient('modify', patient.id)">
+							Modifier
+						</button>
+						<button type="submit" id="removePatient{{patient.id}}" (click)="submitPatient('remove', patient.id)">
+							Supprimer
+						</button>
+					</div>
+				</form>
+			</article>
+		</ng-container>
+		<aside *ngIf="!newCustomer">
+			<form id="patient">
+				<div>
+					<label>
+						<span>Nom:</span><input name="name" type="text" value="Nom du patient">
+					</label>
+					<label>
+						<span>Type:</span>
+						<select name="type">
+							<option *ngFor="let type of animalTypes" value="{{type.id}}">{{type.name}}</option>
+						</select>
+					</label>
+					<label>
+						<span>Race:</span>
+						<select name="breed">
+							<option *ngFor="let breed of breeds" value="{{breed.id}}">{{breed.name}}</option>
+						</select>
+					</label>
+				</div>
+				<button type="submit" id="newPatient" (click)="submitPatient('new', 0)">
+					Ajouter un patient
+				</button>
+			</form>
+		</aside>
+	</section>
+</main>

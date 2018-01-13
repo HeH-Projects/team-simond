@@ -1,213 +1,258 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder, Validators, AbstractControl } from '@angular/forms';
-import { TokenService } from '../../service/token.service';
+import { FormControl, Validators, AbstractControl } from '@angular/forms';
 import { RequestService } from '../../service/request.service';
-import { Router, ActivatedRoute } from '@angular/router/';
+import {Observable} from "rxjs/Observable";
+import {Customer} from "../../models/customer";
+import {isNullOrUndefined} from "util";
+import {Patient} from "../../models/patient";
 
 @Component({
   selector: 'pm-client',
   templateUrl: './client.component.html',
-  styleUrls: ['./client.component.css']
+  styleUrls: ['./../../bootstrap/reset.css', './client.component.css']
 })
 export class ClientComponent implements OnInit {
-  customers : any = null;
-  customer : any = null;
-  customerId : number = 0;
-  patients : any = null;
-  updatePatients : boolean = true;
-  searchCustomerForm : FormGroup;
-  updateCustomerForm : FormGroup;
-  updatePatientForm : FormGroup;
 
+  //Customer
+  newCustomer : boolean = true;
+  searchField: FormControl;
   customerSearchMessage: string;
-  customerUpdateMessage: string;
-  patientNameMessage: string;
-  patientTypeMessage: string;
-  patientBreedMessage: string;
+  customers: Customer[];
+  customersSearchList: Observable<Customer[]>;
+  currentCustomer: Customer;
 
-  private validationMessages = {
-    required : 'Enter the name of a room.',
-    pattern : 'Enter a valid room name.'
-  }
-
+  //Patient
+  currentPatients: Patient[];
   animalTypes : any = [{ name : "chien", id : 1}, {name : "chat", id : 2}];
   breeds : any = [{name : "bichon", id : 1}, {name : "siamois", id : 2}];
 
-  constructor(private _tokenService : TokenService, private _requestService : RequestService, private fb : FormBuilder, private _router: Router, private _route : ActivatedRoute) { }
+  private validationMessages = {
+      required : "Veuillez entrer le nom d'un client.",
+      pattern : "Veuillez entrer un nom de client correct."
+  };
 
-  ngOnInit() {
-    this.searchCustomerForm = this.fb.group({
-      customerSearchName : ["", Validators.required]
-    })
-    this.updateCustomerForm = this.fb.group({
-      customerUpdateName : [this.searchCustomerForm.get('customerSearchName').value, Validators.required]
-    })
-    this.updatePatientForm = this.fb.group({
-      patientName : ["", Validators.required],
-      patientType : ["", Validators.required],
-      patientBreed: ["", Validators.required]
-    })
-    this.onChanges();
-    /*this._route.queryParams.subscribe(params => {
-      this.customerId = params.customer_id;
-    })*/
+  constructor(private _requestService : RequestService){ }
+
+
+  //Helping functions
+  private setValidationMessage(c : AbstractControl){
+      this.customerSearchMessage = '';
+      if((c.touched || c.dirty) && c.errors){
+          this.customerSearchMessage = Object.keys(c.errors).map(key => this.validationMessages[key]).join(' ');
+      }
   }
 
-  onChanges(){
-    this.searchCustomerForm.get('customerSearchName').valueChanges.subscribe(val =>{
-      this.onCustomerChange();
-    })
-    this.setValidationMessage(this.searchCustomerForm.get('customerSearchName'));
-    this.setValidationMessage(this.updateCustomerForm.get('customerUpdateName'));
-    this.setValidationMessage(this.updatePatientForm.get('patientName'));
-  }
+  private searchCustomers(term: string): Observable<Customer[]> {
+      let customersList: Customer[] = new Array();
+      console.log("search customer");
 
-  onCustomerChange() {
-    console.log('customer change');
-    var f = this.searchCustomerForm,
-        tmp = f.get('customerSearchName').value.split("#");
-    if (tmp.length == 2 && this.patients.length == 0) {
-        this._requestService.findPatientsByCustomerId(parseInt(tmp[1]));
-        this.customers.forEach(element => {
-          if(element.id == tmp[1]){
-            this.customer = element;
+      if (!term.trim()) {
+          return Observable.of(customersList);
+      }
+
+      this.newCustomer = true;
+
+      this.customers.forEach(customer => {
+          if(customer.name.indexOf(term) != -1){
+              customersList.push(customer);
           }
-        });
-    } else {
-        if(f.get('customerSearchName').value.length >= 1){
-            this._requestService.findCustomersByIncompleteName(f.get('customerSearchName').value);
-        }
-        this.patients = [];
-    }
-  }
 
-  setCustomers(customers){
-    this.customers = customers;
-    if(this.customerId != 0){
-      this._requestService.findPatientsByCustomerId(this.customerId);
-      this.customers.forEach(element => {
-        if(element.id == this.customerId){
-          this.customer = element;
-        }
+          if(customer.name == term){
+              this.newCustomer = false;
+              this.currentCustomer = this.getCustomerByName(term);
+              this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
+                 this.currentPatients = patients;
+              });
+          }
       });
-    }
+
+      if(this.newCustomer){
+          this.currentCustomer = null;
+          this.currentPatients = null;
+      }
+
+      return Observable.of(customersList);
   }
 
-  setPatients(patients){
-    this.patients = patients;
-    this.updatePatients = true;
+  private getCustomerById(id: number): Customer{
+      let answer: Customer = null;
+      this.customers.forEach(customer => {
+          if(customer.id == id){
+              answer = customer;
+              console.log("customer with matching id: " + customer.id);
+          }
+      });
+      return answer;
   }
 
-  selectOptionByValue(sObj, value) {
-    if(value !=0){
-      for (let i = 0; i < sObj.options.length; i++) {
-          if (sObj.options[i].value == value) {
-              sObj.options.selectedIndex = i;
+  private getCustomerByName(name: string): Customer{
+      let answer: Customer = null;
+      for(let i = 0; i < this.customers.length; i++){
+          if(this.customers[i].name == name){
+              answer = this.customers[i];
               break;
           }
       }
-    }
+      return answer;
   }
 
-  setValidationMessage(c : AbstractControl){
-    this.customerSearchMessage = '';
-    if((c.touched || c.dirty) && c.errors){
-      this.customerSearchMessage = Object.keys(c.errors).map(key => this.validationMessages[key]).join(' ');
-    }
+  updateSearchField(id: number): void{
+      this.currentCustomer = this.getCustomerById(id);
+      this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
+          this.currentPatients = patients;
+      });
+      this.searchField.setValue(this.currentCustomer.name);
   }
 
-  ngAfterViewChecked(){
-    if(this.patients !=null){
-      this.patients.forEach(element =>{
-        let article = document.getElementById('patient_'+element.id);
-        let selects = article.getElementsByTagName('select');
-        if(this.updatePatients){
-          this.selectOptionByValue(selects[0], element.type)
-          this.selectOptionByValue(selects[1], element.breed)
+  isPatientType(id: number, type: number): boolean{
+      let answer: boolean = false;
+      console.log("checking "+ id +" type: " + type);
+      this.currentPatients.forEach(patient =>{
+          if(patient.id == id){
+              if(patient.type == type){
+                  answer = true;
+              }
+          }
+      });
+      return answer;
+  }
+
+  isPatientBreed(id: number, breed: number): boolean{
+      let answer: boolean = false;
+      console.log("checking "+ id +" breed: " + breed);
+      this.currentPatients.forEach(patient =>{
+          if(patient.id == id){
+              if(patient.breed == breed){
+                  answer = true;
+              }
+          }
+      });
+      return answer;
+  }
+
+
+  //Initialisation du composant
+  ngOnInit() : void {
+     this._requestService.getCustomers().subscribe(customers => this.customers = customers);
+
+     this.searchField = new FormControl("", [Validators.required, Validators.pattern(/^[A-Za-z]+([\s][A-Za-z]+){1,2}$/)]);
+     this.searchField.valueChanges.distinctUntilChanged().subscribe( val => {
+        this.customersSearchList = this.searchCustomers(val);
+
+        this.setValidationMessage(this.searchField);
+     });
+  }
+
+  //Fonctions CUD
+  submitCustomer(submitCase) : void{
+     if(this.searchField.value.trim()){
+        if(isNullOrUndefined(this.currentCustomer)){
+            this.currentCustomer = this.getCustomerByName(this.searchField.value);
+            this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
+                this.currentPatients = patients;
+            });
         }
-      })
-      this.updatePatients = false;
-    }
+        switch(submitCase){
+            case 'new' :
+                let cusToAdd = new FormData();
+                cusToAdd.append("name", this.searchField.value);
+
+                this._requestService.addCustomer(cusToAdd).subscribe((customer: Customer) => {
+                    this.customers.push(customer);
+                    this.currentCustomer = customer;
+                    this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
+                        this.currentPatients = patients;
+                    });
+                    this.newCustomer = false;
+                });
+                break;
+            case 'modify' :
+                if(!isNullOrUndefined(this.currentCustomer)) {
+                    let cusToChange = new FormData();
+                    cusToChange.append("name", this.searchField.value);
+
+                    this._requestService.modifyCustomer(this.currentCustomer.id, cusToChange).subscribe((customer: Customer) => {
+                        this.customers.forEach((customerInList: Customer) => {
+                            //Une méthode 'isEqualTo' dans le modèle 'Customer' aurait été plus appropriée mais je n'ai pas réussi
+                            if (customerInList.id == customer.id && customerInList.name == customer.name) {
+                                this.customers.splice(this.customers.indexOf(customerInList), 1, customer);
+                                this.currentCustomer = customer;
+                            }
+                        });
+                    });
+                }
+                break;
+            case 'remove' :
+                if(!isNullOrUndefined(this.currentCustomer)) {
+                    this._requestService.removeCustomer(this.currentCustomer.id).subscribe((customer: Customer) => {
+                        this.customers.forEach((customerInList: Customer) => {
+                            //Une méthode 'isEqualTo' dans le modèle 'Customer' aurait été plus appropriée mais je n'ai pas réussi
+                            if (customerInList.id == customer.id && customerInList.name == customer.name) {
+                                this.customers.splice(this.customers.indexOf(customerInList), 1);
+                                this.newCustomer = true;
+                            }
+                        });
+                        this.currentPatients = null;
+                    });
+                }
+                break;
+        }
+     }
   }
 
-  loadData(){
-    if(this.patients !=null){
-      this.patients.forEach(element =>{
-        let article = document.getElementById('patient_'+element.id);
-        let selects = article.getElementsByTagName('select');
-        this.selectOptionByValue(selects[0], element.type)
-        this.selectOptionByValue(selects[1], element.breed)
-      })
-    }
-  }
-
-  resetCustomer(){
-    this.updateCustomerForm.get('customerUpdateName').setValue(this.customer.name);
-  }
-
-  submitCustomer(submitCase: string){
-    if(this.updateCustomerForm.get("customerUpdateName").value != null){
-      switch(submitCase){
+  submitPatient(submitCase: string, id: number) : void{
+     let originForm, patientName, patientType, patientBreed;
+     switch(submitCase){
         case 'new' :
-            let dataToAdd = new FormData();
-            dataToAdd.append('name', this.searchCustomerForm.get('customerSearchName').value);
-            this._requestService.addCustomer(dataToAdd);
-          break;
-        case 'modify' :
-            let data = new FormData();
-            data.append('name', this.updateCustomerForm.get('customerUpdateName').value);
-            this._requestService.modifyCustomer(this.customer.id, data);
-          break;
-        case 'remove' :
-            this._requestService.removeCustomer(this.customer.id);
-          break;
-      }
-    }
-  }
+            originForm = document.forms.namedItem("patient").elements;
+            patientName = (originForm.namedItem("name") as HTMLInputElement).value;
+            patientType = (originForm.namedItem("type") as HTMLSelectElement).value;
+            patientBreed = (originForm.namedItem("breed") as HTMLSelectElement).value;
 
-  submitPatient(id: number, submitCase: string){
-    if(this.updatePatientForm.get('patientName').value != null){
-      switch(submitCase){
-        case 'modify' :
-            let data = new FormData();
-            data.append('name', this.updatePatientForm.get('patientName').value);
-            data.append('type', this.updatePatientForm.get('patientType').value);
-            data.append('breed', this.updatePatientForm.get('patientBreed').value);
-            if(id==0){
-              data.append('customer_id', this.customer.id);
-              this._requestService.addPatient(data);
-            }else{
-              this._requestService.modifyPatient(id, data);
+            if(patientName.trim()) {
+                let patToAdd = new FormData();
+                patToAdd.append("customerId", String(this.currentCustomer.id));
+                patToAdd.append("name", patientName.trim());
+                patToAdd.append("type", patientType.trim());
+                patToAdd.append("breed", patientBreed.trim());
+
+                this._requestService.addPatient(patToAdd).subscribe((patient: Patient) => {
+                    this.currentPatients.push(patient);
+                });
             }
-          break;
-        case 'remove' : 
-            this._requestService.removePatient(id);
-          break;
-      }
-    }
-  }
+            break;
+        case 'modify' :
+            originForm = document.forms.namedItem("patient_"+id).elements;
+            patientName = (originForm.namedItem("name") as HTMLInputElement).value;
+            patientType = (originForm.namedItem("type") as HTMLSelectElement).value;
+            patientBreed = (originForm.namedItem("breed") as HTMLSelectElement).value;
 
-  addPatient(){
-    this.patients.push({
-      id: 0,
-      customer_id : this.customer.id,
-      name: '',
-      type : 0,
-      breed : 0,
-      hasPic: false
-    })
-  }
+            if(patientName.trim()) {
+                let patToChange = new FormData();
+                patToChange.append("name", patientName.trim());
+                patToChange.append("type", patientType.trim());
+                patToChange.append("breed", patientBreed.trim());
 
-  refresh(){
-    if(this.customer != null){
-      this.customerId = this.customer.id;
-    }
-    this._requestService.findCustomersByIncompleteName(this.customer.name[0]);
-    this.customerChange();
-  }
-
-  customerChange(){
-    this.customer = null;
-    this.searchCustomerForm.get('customerSearchName').setValue("");
+                this._requestService.modifyPatient(id, patToChange).subscribe((patient: Patient) => {
+                    this.currentPatients.forEach((patientInList: Patient) => {
+                        //Une méthode 'isEqualTo' dans le modèle 'Patient' aurait été plus appropriée mais je n'ai pas réussi
+                        if (patientInList.id == patient.id) {
+                            this.currentPatients.splice(this.currentPatients.indexOf(patientInList), 1, patient);
+                        }
+                    });
+                });
+            }
+            break;
+        case 'remove' :
+            this._requestService.removePatient(id).subscribe((patient: Patient) => {
+                this.currentPatients.forEach((patientInList: Patient) => {
+                    //Une méthode 'isEqualTo' dans le modèle 'Patient' aurait été plus appropriée mais je n'ai pas réussi
+                    if (patientInList.id == patient.id) {
+                        this.currentPatients.splice(this.currentPatients.indexOf(patientInList), 1);
+                    }
+                });
+            });
+            break;
+     }
   }
 }

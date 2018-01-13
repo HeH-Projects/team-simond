@@ -1,8 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+
 li {
     font-size: large;
 }
 
 div.panel-heading {
    font-size: x-large;
+}
+
+*{
+    font-family: 'Open Sans', sans-serif;
 }

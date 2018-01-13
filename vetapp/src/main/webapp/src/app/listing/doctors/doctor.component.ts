@@ -1,17 +1,15 @@
-import { Component } from '@angular/core';
-import { TokenService } from '../../service/token.service';
-import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
+import { Component, OnInit } from '@angular/core';
 import {FormControl, Validators} from '@angular/forms';
 import { RequestService } from '../../service/request.service';
 import {Room} from "../../models/room";
 import {Observable} from "rxjs/Observable";
 import {Doctor} from "../../models/doctor";
 import {isNullOrUndefined} from "util";
-import {forEach} from "@angular/router/src/utils/collection";
 
 @Component({
+    selector: 'pm-doctor',
     templateUrl: './doctor.component.html',
-    styleUrls: ['./doctor.component.css']
+    styleUrls: ['./../../bootstrap/reset.css', './doctor.component.css']
 })
 export class DoctorComponent implements OnInit{
 
@@ -27,7 +25,7 @@ export class DoctorComponent implements OnInit{
     days : string[] = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     timeSlots : object = { monday : [], tuesday : [], wednesday : [], thursday : [], friday : [], saturday: [], sunday : [] }; 
 
-    constructor(private _tokenService : TokenService, private _requestService : RequestService){ }
+    constructor(private _requestService : RequestService){ }
 
     range(start : number, end : number){
         let input = new Array();
@@ -49,7 +47,7 @@ export class DoctorComponent implements OnInit{
         }
     }
 
-    private searchDoctors(term: string): Observable<Room[]> {
+    private searchDoctors(term: string): Observable<Doctor[]> {
         let doctorsList: Doctor[] = new Array();
 
         if (!term.trim()) {
@@ -91,7 +89,6 @@ export class DoctorComponent implements OnInit{
         let answer: Doctor = null;
         this.doctors.forEach(doctor => {
             if(doctor.name == name){
-                console.log("in " + doctor);
                 answer = doctor;
             }
         });
@@ -135,7 +132,7 @@ export class DoctorComponent implements OnInit{
 
     ngOnInit(){
         this._requestService.getDoctors().subscribe(doctors => {
-            //Fix pour les horaires de travail des médecins #Part Backend
+            //Fix pour les horaires de travail des médecins #Sample TextPart Backend
             doctors.forEach(doctor => {
                 for(let j = 0; j < 7; j++){
                     doctor[this.days[j]] = doctor[this.days[j]].replace(/"/g, '');
@@ -146,7 +143,7 @@ export class DoctorComponent implements OnInit{
 
         this._requestService.getRooms().subscribe(rooms => this.rooms = rooms);
 
-        this.searchField = new FormControl("", [Validators.required, Validators.pattern('^[A-Za-z0-9]+$')]);
+        this.searchField = new FormControl("", [Validators.required, Validators.pattern(/^[A-Za-z]+[\s]{0,1}[A-Za-z]+$/)]);
         this.searchField.valueChanges.distinctUntilChanged().subscribe( val => {
             this.doctorsSearchList = this.searchDoctors(val);
         });
@@ -172,7 +169,7 @@ export class DoctorComponent implements OnInit{
                         }
                         docToAdd.append(this.days[j], this.binaryToHex(workingSlots));
                     }
-                    this._requestService.addDoctor(docToAdd).subscribe(doctor => {
+                    this._requestService.addDoctor(docToAdd).subscribe((doctor: Doctor) => {
                         //Fix pour les horaires de travail des médecins #Part Backend
                         for(let j = 0; j < 7; j++){
                             doctor[this.days[j]] = doctor[this.days[j]].replace(/"/g, '');

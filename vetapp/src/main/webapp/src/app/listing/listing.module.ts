@@ -8,7 +8,6 @@ import { DoctorComponent } from './doctors/doctor.component';
 import { RoomComponent } from './rooms/room.component';
 import { ClientComponent } from './clients/client.component';
 
-import { TokenService } from '../service/token.service';
 import { RequestService } from '../service/request.service';
 
 @NgModule({
@@ -30,7 +29,6 @@ import { RequestService } from '../service/request.service';
       RoomComponent
   ],
   providers: [
-    TokenService,
     RequestService
   ]
 })

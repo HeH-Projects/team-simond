@@ -60,8 +60,17 @@ export class RequestService {
         const headers: HttpHeaders = this._tokenService.getMyToken();
         return this._http.get<Doctor[]>('/api/json/doctors', {headers})
             .pipe(
-                tap(doctors => this.log(`fetched doctors =${doctors}`)),
-                catchError(this.handleError('getDoctors', []))
+                tap((doctors: Doctor[]) => this.log(`fetched doctors =${doctors}`)),
+                catchError(this.handleError<Doctor[]>('getDoctors'))
+            );
+    }
+
+    getCustomers(): Observable<Customer[]>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.get<Customer[]>('/api/json/customers', {headers})
+            .pipe(
+                tap((customers: Customer[]) => this.log(`fetched customers =${customers}`)),
+                catchError(this.handleError<Customer[]>('getCustomers'))
             );
     }
 
@@ -69,8 +78,17 @@ export class RequestService {
         const headers: HttpHeaders = this._tokenService.getMyToken();
         return this._http.get<Room[]>('/api/json/rooms', {headers})
             .pipe(
-                tap(rooms => this.log(`fetched rooms =${rooms}`)),
-                catchError(this.handleError('getRooms', []))
+                tap((rooms: Room[]) => this.log(`fetched rooms =${rooms}`)),
+                catchError(this.handleError<Room[]>('getRooms'))
+            );
+    }
+
+    findAppointmentsByDate(date): Observable<Appointment[]>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.get<Appointment[]>('/api/json/appointments/'+date, {headers})
+            .pipe(
+                tap((appointments: Appointment[]) => this.log(`found appointments (${appointments}) by date: ${date}`)),
+                catchError(this.handleError<Appointment[]>('findAppointmentsByDate'))
             );
     }
 
@@ -78,8 +96,8 @@ export class RequestService {
         const headers: HttpHeaders = this._tokenService.getMyToken();
         return this._http.get<Customer>('/api/json/customer/0/'+id, {headers})
             .pipe(
-                tap(customer => this.log(`found customer by patient id`)),
-                catchError(this.handleError('findCustomerByPatientId', []))
+                tap((customer: Customer) => this.log(`found customer (${customer.name}) by patient id`)),
+                catchError(this.handleError<Customer>('findCustomerByPatientId'))
             );
     }
 
@@ -87,8 +105,8 @@ export class RequestService {
         const headers: HttpHeaders = this._tokenService.getMyToken();
         return this._http.get<Patient[]>('/api/json/patients?customer='+id, {headers})
             .pipe(
-                tap(patients => this.log(`found patients by customer id`)),
-                catchError(this.handleError('findPatientsByCustomerId', []))
+                tap((patients: Patient[]) => this.log(`found patients (${patients}) by customer id`)),
+                catchError(this.handleError<Patient[]>('findPatientsByCustomerId'))
             );
     }
 
@@ -96,8 +114,8 @@ export class RequestService {
         const headers: HttpHeaders = this._tokenService.getMyToken();
         return this._http.get<Customer[]>('/api/json/customers/'+name, {headers})
             .pipe(
-                tap(customers => this.log(`found customers by incomplete name`)),
-                catchError(this.handleError('findCustomersByIncompleteName', []))
+                tap((customers: Customer[]) => this.log(`found customers (${customers}) by incomplete name`)),
+                catchError(this.handleError<Customer[]>('findCustomersByIncompleteName'))
             );
     }
 
@@ -224,7 +242,7 @@ export class RequestService {
         const headers: HttpHeaders = this._tokenService.getMyToken();
         return this._http.post<Appointment>('/api/create/appointment', data, {headers})
             .pipe(
-                tap((appointment: Appointment) => this.log(`added appointment with id=${appointment.id}`)),
+                tap((appointment: Appointment) => this.log(`added appointment with date=${appointment.date}`)),
                 catchError(this.handleError<Appointment>('addAppointment'))
             );
     }

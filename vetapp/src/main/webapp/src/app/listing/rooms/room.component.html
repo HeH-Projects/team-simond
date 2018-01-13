@@ -5,14 +5,14 @@
             <span>Room</span>
             <input type="search" list="rooms" [formControl]="searchField">
         </label>
+        <datalist id="rooms">
+            <option *ngFor="let room of roomsSearchList | async" value="{{room.name}}">
+        </datalist>
         <span class="message-block" *ngIf="roomMessage">
             {{roomMessage}}
         </span>
-        <datalist id="rooms" name="rooms">
-            <option *ngFor="let room of roomsSearchList | async" value="{{room.name}}">
-        </datalist>
         <div *ngIf="newRoom">
-            <button type="submit" id="new" (click)="submit('new')">Create</button>
+            <button type="submit" id="new" (click)="submit('new')">Ajouter</button>
         </div>
         <div *ngIf="!newRoom">
             <button type="submit" id="remove" (click)="submit('remove')"><img src="./../../../assets/delete.svg" width="50px"></button>
