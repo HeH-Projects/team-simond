@@ -5,6 +5,7 @@ import {Appointment} from "../models/appointment";
 import {Patient} from "../models/patient";
 import {Customer} from "../models/customer";
 import {Observable} from "rxjs/Observable";
+import {Doctor} from "../models/doctor";
 
 @Component({
     templateUrl: './appointment.component.html',
@@ -20,10 +21,10 @@ export class AppointmentComponent implements OnInit{
     roomColors : Array<any> = null;
     
     days : any = [];
-    doctors : any = [];
-    rooms : any = [];
+    doctors : Doctor[] = [];
+    rooms : Room[] = [];
     roomNames : any = [];
-    customers : any = [];
+    customers : Customer[] = [];
     types : any = [{id:1, name:"Visite"},{id:2, name:"Toilettage"},{id:3, name:"Pédicure"}];
 
     popup : any = null;
@@ -51,7 +52,7 @@ export class AppointmentComponent implements OnInit{
             return Observable.of(customersList);
         }
 
-        this.customers.forEach(customer => {
+        this.customers.forEach((customer: Customer) => {
             if(customer.name.toLowerCase().indexOf(term.toLowerCase()) != -1){
                 customersList.push(customer);
             }
@@ -80,7 +81,7 @@ export class AppointmentComponent implements OnInit{
 
     private getCustomerById(id: number): Customer{
         let answer: Customer = null;
-        this.customers.forEach(customer => {
+        this.customers.forEach((customer: Customer) => {
             if(customer.id == id){
                 answer = customer;
             }
@@ -115,7 +116,7 @@ export class AppointmentComponent implements OnInit{
         this._requestService.getRooms().subscribe((rooms: Room[]) => {
             this.rooms = rooms.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
         });
-        this._requestService.getDoctors().subscribe(doctors => {
+        this._requestService.getDoctors().subscribe((doctors: Doctor[]) => {
             //Fix pour les horaires de travail des médecins #Sample TextPart Backend
             doctors.forEach(doctor => {
                 for(let j = 0; j < 7; j++){
@@ -169,7 +170,6 @@ export class AppointmentComponent implements OnInit{
         this.days = [];
         var date = new Date(this.date), nbDays = 1;
         if (this.weekView) {
-            console.log("weekview");
             nbDays = 7;
             if (date.getDay() === 0) {
                 date.setDate(date.getDate() - 6);
@@ -192,12 +192,10 @@ export class AppointmentComponent implements OnInit{
 
                 if (!hf_duplicate) {
                     this.days.push({date: date, appointments: appointments, isToday: date.toDateString() === (new Date()).toDateString() });
-                    console.log(this.days);
                     this.days.sort((a:any, b:any) => a.date - b.date);
                 }
 
                 date = new Date(date);
-                console.log(date);
                 date.setDate(date.getDate() + 1);
             });
         }
@@ -228,7 +226,7 @@ export class AppointmentComponent implements OnInit{
         this.form.customer.value = "";
         this.currentPatients = [];
         this.selectedPatientId = null;
-        this.form.room.selectedIndex = -1;
+        this.selectOptionByValue(f.room, doctor.roomId);
         this.form.type.selectedIndex = -1;
     }
     updateAppointment(appointment) {
@@ -279,14 +277,14 @@ export class AppointmentComponent implements OnInit{
 
     ngAfterViewChecked(){
         let f = this.form;
-        
+
         if(this.currentPatients.length > 0){
             if (this.selectedPatientId !== null) { // updateAppointment
                 this.selectOptionByValue(f.patient, this.selectedPatientId);
-            } 
+            }
         }
         if(this.updateAppointement && this.customers.length == 1){
-            f.customer.value = this.customers[0].name + " #" + this.customers[0].id;
+            f.customer.value = this.customers[0].name;
             this.onCustomerChange();
         }
     }

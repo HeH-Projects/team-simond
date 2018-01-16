@@ -2,11 +2,10 @@ import {Component, OnInit} from '@angular/core';
 import { FormControl, Validators, AbstractControl } from '@angular/forms';
 import { RequestService } from '../../service/request.service';
 import {Observable} from "rxjs/Observable";
+import 'rxjs/add/operator/retry';
 import {Customer} from "../../models/customer";
 import {isNullOrUndefined} from "util";
 import {Patient} from "../../models/patient";
-import {Type} from "../../models/type";
-import {Breed} from "../../models/breed";
 
 @Component({
   selector: 'pm-client',
@@ -30,8 +29,6 @@ export class ClientComponent implements OnInit {
 
   //Patient
   currentPatients: Patient[];
-  animalTypes : Type[];
-  breeds : Breed[];
 
   private validationMessages = {
       required : "Veuillez entrer le nom d'un client.",
@@ -98,6 +95,7 @@ export class ClientComponent implements OnInit {
       let answer: Customer = null;
       this.customers.forEach(customer => {
           if(customer.id == id){
+              customer.phone = customer.phone.replace(/"/g, '');
               answer = customer;
           }
       });
@@ -108,6 +106,7 @@ export class ClientComponent implements OnInit {
       let answer: Customer = null;
       for(let i = 0; i < this.customers.length; i++){
           if(this.customers[i].name == name){
+              this.customers[i].phone = this.customers[i].phone.replace(/"/g, '');
               answer = this.customers[i];
               break;
           }
@@ -117,37 +116,14 @@ export class ClientComponent implements OnInit {
 
   updateSearchField(id: number): void{
       this.currentCustomer = this.getCustomerById(id);
+
       this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
           this.currentPatients = patients.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
       });
+
       this.choosingCustomerById = true;
       this.searchField.setValue(this.currentCustomer.name);
   }
-
-  isPatientType(id: number, type: number): boolean{
-      let answer: boolean = false;
-      this.currentPatients.forEach(patient =>{
-          if(patient.id == id){
-              if(patient.type == type){
-                  answer = true;
-              }
-          }
-      });
-      return answer;
-  }
-
-  isPatientBreed(id: number, breed: number): boolean{
-      let answer: boolean = false;
-      this.currentPatients.forEach(patient =>{
-          if(patient.id == id){
-              if(patient.breed == breed){
-                  answer = true;
-              }
-          }
-      });
-      return answer;
-  }
-
 
   //Initialisation du composant
   ngOnInit() : void {
@@ -164,9 +140,6 @@ export class ClientComponent implements OnInit {
       this.postalCode = new FormControl("", [Validators.required, Validators.pattern(/^[0-9]{4}$/)]);
       this.town = new FormControl("", [Validators.required, Validators.pattern(/^[A-Za-z\-]{3, 50}$/)]);
       this.phone = new FormControl("", [Validators.required, Validators.pattern(/^[0-9]{9,10}$/)]);
-
-     this._requestService.getTypes().subscribe(types => this.animalTypes = types.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);}));
-     this._requestService.getBreeds().subscribe(breeds => this.breeds = breeds.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);}));
   }
 
   //Fonctions CUD
@@ -228,59 +201,25 @@ export class ClientComponent implements OnInit {
      }
   }
 
-  submitPatient(submitCase: string, id: number) : void{
-     let originForm, patientName, patientType, patientBreed;
-     switch(submitCase){
-        case 'new' :
-            originForm = document.forms.namedItem("patient").elements;
-            patientName = (originForm.namedItem("name") as HTMLInputElement).value;
-            patientType = (originForm.namedItem("type") as HTMLSelectElement).value;
-            patientBreed = (originForm.namedItem("breed") as HTMLSelectElement).value;
+  newPatient(patient: Patient) : void {
+      this.currentPatients.push(patient);
+  }
 
-            if(patientName.trim()) {
-                let patToAdd = new FormData();
-                patToAdd.append("customerId", String(this.currentCustomer.id));
-                patToAdd.append("name", patientName.trim());
-                patToAdd.append("type", patientType.trim());
-                patToAdd.append("breed", patientBreed.trim());
+  modifyPatient(patient: Patient) : void {
+      this.currentPatients.forEach((patientInList: Patient) => {
+          //Une méthode 'isEqualTo' dans le modèle 'Patient' aurait été plus appropriée mais je n'ai pas réussi
+          if (patientInList.id == patient.id) {
+              this.currentPatients.splice(this.currentPatients.indexOf(patientInList), 1, patient);
+          }
+      });
+  }
 
-                this._requestService.addPatient(patToAdd).subscribe((patient: Patient) => {
-                    this.currentPatients.push(patient);
-                });
-            }
-            break;
-        case 'modify' :
-            originForm = document.forms.namedItem("patient_"+id).elements;
-            patientName = (originForm.namedItem("name") as HTMLInputElement).value;
-            patientType = (originForm.namedItem("type") as HTMLSelectElement).value;
-            patientBreed = (originForm.namedItem("breed") as HTMLSelectElement).value;
-
-            if(patientName.trim()) {
-                let patToChange = new FormData();
-                patToChange.append("name", patientName.trim());
-                patToChange.append("type", patientType.trim());
-                patToChange.append("breed", patientBreed.trim());
-
-                this._requestService.modifyPatient(id, patToChange).subscribe((patient: Patient) => {
-                    this.currentPatients.forEach((patientInList: Patient) => {
-                        //Une méthode 'isEqualTo' dans le modèle 'Patient' aurait été plus appropriée mais je n'ai pas réussi
-                        if (patientInList.id == patient.id) {
-                            this.currentPatients.splice(this.currentPatients.indexOf(patientInList), 1, patient);
-                        }
-                    });
-                });
-            }
-            break;
-        case 'remove' :
-            this._requestService.removePatient(id).subscribe((patient: Patient) => {
-                this.currentPatients.forEach((patientInList: Patient) => {
-                    //Une méthode 'isEqualTo' dans le modèle 'Patient' aurait été plus appropriée mais je n'ai pas réussi
-                    if (patientInList.id == patient.id) {
-                        this.currentPatients.splice(this.currentPatients.indexOf(patientInList), 1);
-                    }
-                });
-            });
-            break;
-     }
+  removePatient(patient: Patient) : void {
+      this.currentPatients.forEach((patientInList: Patient) => {
+          //Une méthode 'isEqualTo' dans le modèle 'Patient' aurait été plus appropriée mais je n'ai pas réussi
+          if (patientInList.id == patient.id) {
+              this.currentPatients.splice(this.currentPatients.indexOf(patientInList), 1);
+          }
+      });
   }
 }

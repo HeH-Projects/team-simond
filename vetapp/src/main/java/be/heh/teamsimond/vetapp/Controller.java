@@ -153,10 +153,7 @@ public class Controller {
                 } catch (Exception e) {}
             } else if(strClass.equals("room") && researchTerm != null){
                 l = vetappElementRepository.findRoomByName(researchTerm);
-            } else if(strClass.equals("breed") && researchTerm != null){
-                l = vetappElementRepository.findBreedsByType(Integer.parseInt(researchTerm));
-            }
-            else {
+            } else {
                 try {
                     l = vetappElementRepository.findById(this.classMap.get(strClass), Integer.parseInt(strId));
                 } catch (Exception e) {}
@@ -200,6 +197,10 @@ public class Controller {
         } else if (strClass.equals("patient") && request.getParameter("customer") != null) {
             try {
                 return new VetappElements(this.vetappElementRepository.findPatientsByCustomer(Integer.parseInt(request.getParameter("customer"))));
+            } catch (Exception e) {}
+        } else if(strClass.equals("breed") && request.getParameter("type") != null){
+            try {
+                return new VetappElements(this.vetappElementRepository.findBreedsByType(Integer.parseInt(request.getParameter("type"))));
             } catch (Exception e) {}
         } else if (this.classMap.get(strClass) != null) {
             return new VetappElements(strIncompleteName != null ? this.vetappElementRepository.findByIncompleteName(classMap.get(strClass), strIncompleteName) : this.vetappElementRepository.findAll(this.classMap.get(strClass)));

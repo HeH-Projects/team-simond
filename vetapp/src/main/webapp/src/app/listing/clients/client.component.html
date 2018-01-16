@@ -44,58 +44,11 @@
 	<section>
 		<ng-container *ngIf="currentPatients">
 			<article *ngFor="let patient of currentPatients">
-				<form id="patient_{{patient.id}}">
-					<div>
-						<label>
-							<span>Nom:</span><input name="name" type="text" value="{{patient.name}}">
-						</label>
-						<label>
-							<span>Type:</span>
-							<select name="type">
-								<option *ngFor="let type of animalTypes" value="{{type.id}}" [selected]="isPatientType(patient.id, type.id)">{{type.name}}</option>
-							</select>
-						</label>
-						<label>
-							<span>Race:</span>
-							<select name="breed">
-								<option *ngFor="let breed of breeds" value="{{breed.id}}" [selected]="isPatientBreed(patient.id, breed.id)">{{breed.name}}</option>
-							</select>
-						</label>
-					</div>
-					<div>
-						<button type="submit" id="modifyPatient{{patient.id}}" (click)="submitPatient('modify', patient.id)">
-							Modifier
-						</button>
-						<button type="submit" id="removePatient{{patient.id}}" (click)="submitPatient('remove', patient.id)">
-							Supprimer
-						</button>
-					</div>
-				</form>
+				<pm-patient [currentCustomer]="currentCustomer" [currentPatient]="patient" (onModify)="changePatient($event)" (onDelete)="removePatient($event)"></pm-patient>
 			</article>
 		</ng-container>
 		<aside *ngIf="!newCustomer">
-			<form id="patient">
-				<div>
-					<label>
-						<span>Nom:</span><input name="name" type="text" value="Nom du patient">
-					</label>
-					<label>
-						<span>Type:</span>
-						<select name="type">
-							<option *ngFor="let type of animalTypes" value="{{type.id}}">{{type.name}}</option>
-						</select>
-					</label>
-					<label>
-						<span>Race:</span>
-						<select name="breed">
-							<option *ngFor="let breed of breeds" value="{{breed.id}}">{{breed.name}}</option>
-						</select>
-					</label>
-				</div>
-				<button type="submit" id="newPatient" (click)="submitPatient('new', 0)">
-					Ajouter un patient
-				</button>
-			</form>
+			<pm-patient [currentCustomer]="currentCustomer" [currentPatient]="null" (onCreate)="newPatient($event)"></pm-patient>
 		</aside>
 	</section>
 </main>

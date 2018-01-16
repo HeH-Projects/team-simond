@@ -9,6 +9,7 @@ import { RoomComponent } from './rooms/room.component';
 import { ClientComponent } from './clients/client.component';
 
 import { RequestService } from '../service/request.service';
+import {PatientComponent} from "./patients/patient.component";
 
 @NgModule({
   imports: [
@@ -26,6 +27,7 @@ import { RequestService } from '../service/request.service';
       UsersComponent,
       DoctorComponent,
       ClientComponent,
+      PatientComponent,
       RoomComponent
   ],
   providers: [

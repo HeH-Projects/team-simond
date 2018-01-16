@@ -93,15 +93,6 @@ export class RequestService {
             );
     }
 
-    getBreeds(): Observable<Breed[]>{
-        const headers: HttpHeaders = this._tokenService.getMyToken();
-        return this._http.get<Breed[]>('/api/json/breeds', {headers})
-            .pipe(
-                tap((breeds: Breed[]) => this.log(`fetched breeds =${breeds}`)),
-                catchError(this.handleError<Breed[]>('getBreeds'))
-            );
-    }
-
     findAppointmentsByDate(date): Observable<Appointment[]>{
         const headers: HttpHeaders = this._tokenService.getMyToken();
         return this._http.get<Appointment[]>('/api/json/appointments/'+date, {headers})
@@ -131,32 +122,12 @@ export class RequestService {
 
     findBreedsByType(id: number): Observable<Breed[]>{
         const headers: HttpHeaders = this._tokenService.getMyToken();
-        return this._http.get<Breed[]>('/api/json/breed/0/'+id, {headers})
+        return this._http.get<Breed[]>('/api/json/breeds?type='+id, {headers})
             .pipe(
                 tap((breeds: Breed[]) => this.log(`found breeds (${breeds}) by type`)),
                 catchError(this.handleError<Breed[]>('findBreedsByType'))
             );
     }
-
-    /*
-    searchRooms(term: string): Observable<Room[]> {
-        if (!term.trim()) {
-            // if not search term, return empty hero array.
-            return of([]);
-        }
-
-        const headers: HttpHeaders = this._tokenService.getMyToken();
-        return this._http.get<Room[]>('/api/json/rooms/'+term, {headers}).pipe(
-            tap((rooms: Room[]) => {
-                if(rooms.length == 0){
-                    this.log(`didn't find any rooms matching "${term}"`);
-                }else{
-                    this.log(`found rooms matching "${term}"`);
-                }
-            }),
-            catchError(this.handleError<Room[]>('searchRooms', []))
-        );
-    }*/
 
     addDoctor(data: FormData): Observable<Doctor>{
         const headers: HttpHeaders = this._tokenService.getMyToken();

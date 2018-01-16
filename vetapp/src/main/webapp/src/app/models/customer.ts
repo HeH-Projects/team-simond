@@ -4,5 +4,5 @@ export interface Customer {
     address: string;
     postalCode: number;
     town: string;
-    phone: number;
+    phone: string;
 }
