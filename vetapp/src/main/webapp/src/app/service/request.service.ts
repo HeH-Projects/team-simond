@@ -10,6 +10,8 @@ import {Room} from "../models/room";
 import {Customer} from "../models/customer";
 import {Patient} from "../models/patient";
 import {Appointment} from "../models/appointment";
+import {Type} from "../models/type";
+import {Breed} from "../models/breed";
 
 @Injectable()
 export class RequestService {
@@ -82,6 +84,24 @@ export class RequestService {
             );
     }
 
+    getTypes(): Observable<Type[]>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.get<Type[]>('/api/json/types', {headers})
+            .pipe(
+                tap((types: Type[]) => this.log(`fetched types =${types}`)),
+                catchError(this.handleError<Type[]>('getTypes'))
+            );
+    }
+
+    getBreeds(): Observable<Breed[]>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.get<Breed[]>('/api/json/breeds', {headers})
+            .pipe(
+                tap((breeds: Breed[]) => this.log(`fetched breeds =${breeds}`)),
+                catchError(this.handleError<Breed[]>('getBreeds'))
+            );
+    }
+
     findAppointmentsByDate(date): Observable<Appointment[]>{
         const headers: HttpHeaders = this._tokenService.getMyToken();
         return this._http.get<Appointment[]>('/api/json/appointments/'+date, {headers})
@@ -109,12 +129,12 @@ export class RequestService {
             );
     }
 
-    findCustomersByIncompleteName(name : string): Observable<Customer[]>{
+    findBreedsByType(id: number): Observable<Breed[]>{
         const headers: HttpHeaders = this._tokenService.getMyToken();
-        return this._http.get<Customer[]>('/api/json/customers/'+name, {headers})
+        return this._http.get<Breed[]>('/api/json/breed/0/'+id, {headers})
             .pipe(
-                tap((customers: Customer[]) => this.log(`found customers (${customers}) by incomplete name`)),
-                catchError(this.handleError<Customer[]>('findCustomersByIncompleteName'))
+                tap((breeds: Breed[]) => this.log(`found breeds (${breeds}) by type`)),
+                catchError(this.handleError<Breed[]>('findBreedsByType'))
             );
     }
 

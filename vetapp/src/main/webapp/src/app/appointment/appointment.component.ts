@@ -52,7 +52,7 @@ export class AppointmentComponent implements OnInit{
         }
 
         this.customers.forEach(customer => {
-            if(customer.name.indexOf(term) != -1){
+            if(customer.name.toLowerCase().indexOf(term.toLowerCase()) != -1){
                 customersList.push(customer);
             }
 
@@ -113,7 +113,7 @@ export class AppointmentComponent implements OnInit{
         this.iterableDiffer = this._iterableDiffers.find([]).create(null);
         this.roomColors = [["#E57373","#D32F2F"],["#64B5F6","#1976D2"],["#AED581","#689F38"]];
         this._requestService.getRooms().subscribe((rooms: Room[]) => {
-            this.rooms = rooms;
+            this.rooms = rooms.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
         });
         this._requestService.getDoctors().subscribe(doctors => {
             //Fix pour les horaires de travail des médecins #Sample TextPart Backend
@@ -122,10 +122,10 @@ export class AppointmentComponent implements OnInit{
                     doctor[["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][j]] = doctor[["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][j]].replace(/"/g, '');
                 }
             });
-            this.doctors = doctors;
+            this.doctors = doctors.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
         });
         this._requestService.getCustomers().subscribe((customers: Customer[]) => {
-            this.customers = customers;
+            this.customers = customers.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
         });
         this.update();
     }
@@ -294,7 +294,7 @@ export class AppointmentComponent implements OnInit{
     submit(){
         let form = this.form;
         let data = new FormData();
-        data.append("room_id", form.room.value);
+        data.append("roomId", form.room.value);
         data.append("type", form.type.value); 
         if(this.updateAppointement){
             this._requestService.modifyAppointment(form.date.value, form.patient.value, data).subscribe((appointment: Appointment) => {
@@ -302,8 +302,8 @@ export class AppointmentComponent implements OnInit{
                 (document.querySelector('.vetCal-popup') as HTMLElement).style.display = "none";
             });
         }else{
-            data.append("patient_id", form.patient.value);
-            data.append("doctor_id", form.doctor.value);
+            data.append("patientId", form.patient.value);
+            data.append("doctorId", form.doctor.value);
             data.append("date", form.date.value);
             this._requestService.addAppointment(data).subscribe((appointment: Appointment) => {
                 this.update();

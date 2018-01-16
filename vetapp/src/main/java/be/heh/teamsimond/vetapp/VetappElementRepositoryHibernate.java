@@ -1,6 +1,5 @@
 package be.heh.teamsimond.vetapp;
 
-import be.heh.teamsimond.vetapp.JPA.Customer;
 import be.heh.teamsimond.vetapp.JPA.Patient;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
@@ -78,9 +77,6 @@ public class VetappElementRepositoryHibernate implements IVetappElementRepositor
         return list;
     }
 
-    public List<IVetappElement> findPatientsByCustomer(Customer customer) {
-        return this.findPatientsByCustomer(customer.getId());
-    }
     public List<IVetappElement> findPatientsByCustomer(int customerId) {
         Session session = this.s_beginTransaction();
         TypedQuery<IVetappElement> query = session.createQuery("FROM Patient c WHERE c.customerId = :customer_id");
@@ -113,9 +109,6 @@ public class VetappElementRepositoryHibernate implements IVetappElementRepositor
         return list;
     }
 
-    public List<IVetappElement> findAppointmentsByPatient(Patient patient) {
-        return this.findAppointmentsByPatient(patient.getId());
-    }
     public List<IVetappElement> findAppointmentsByPatient(int patientId) {
         Session session = this.s_beginTransaction();
         TypedQuery<IVetappElement> query = session.createQuery("FROM Appointment c WHERE c.id.patientId = :patient_id");
@@ -125,9 +118,6 @@ public class VetappElementRepositoryHibernate implements IVetappElementRepositor
         return list;
     }
 
-    public List<IVetappElement> findCustomerByPatient(Patient patient) {
-        return this.findCustomerByPatient(patient.getId());
-    }
     public List<IVetappElement> findCustomerByPatient(int patientId) {
         Session session = this.s_beginTransaction();
         TypedQuery<IVetappElement> query = session.createQuery("FROM Customer c WHERE c.id = (SELECT p.customerId FROM Patient p WHERE p.id = :patient_id)");
@@ -136,10 +126,16 @@ public class VetappElementRepositoryHibernate implements IVetappElementRepositor
         this.s_commitClose(session);
         return list;
     }
-    public void deleteElement(Class c, IVetappElement e) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        session.delete(e);
+
+    public List<IVetappElement> findBreedsByType(int typeId){
+        Session session = this.s_beginTransaction();
+        TypedQuery<IVetappElement> query = session.createQuery("FROM Breed c WHERE c.typeId = :type_id");
+        query.setParameter("type_id", typeId);
+        List<IVetappElement> list = query.getResultList();
+        this.s_commitClose(session);
+        return list;
     }
+
     public List<IVetappElement> findRoomByName(String name) {
         Session session = this.s_beginTransaction();
         TypedQuery<IVetappElement> query = session.createQuery("FROM Room c WHERE c.name = :name");

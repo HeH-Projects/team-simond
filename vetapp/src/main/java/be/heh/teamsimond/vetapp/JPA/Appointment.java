@@ -58,11 +58,11 @@ public class Appointment implements IVetappElement {
         try {
             Appointment e = new Appointment();
             e.setId(new AppointmentId(
-                    Integer.parseInt(parameters.get("patient_id")[0]),
-                    Integer.parseInt(parameters.get("doctor_id")[0]),
+                    Integer.parseInt(parameters.get("patientId")[0]),
+                    Integer.parseInt(parameters.get("doctorId")[0]),
                     (new SimpleDateFormat("yyyy-MM-dd'T'HH:mm")).parse(parameters.get("date")[0])));
             List<String> l = e.update(parameters);
-            if (l.contains("room_id")
+            if (l.contains("roomId")
                     && l.contains("type")) {
                 return e;
             }
@@ -72,9 +72,9 @@ public class Appointment implements IVetappElement {
     public List<String> update(Map<String, String[]> parameters) {
         List<String> l = new ArrayList<>();
         try {
-            if (parameters.get("room_id") != null) {
-                this.setRoomId(Integer.parseInt(parameters.get("room_id")[0]));
-                l.add("room_id");
+            if (parameters.get("roomId") != null) {
+                this.setRoomId(Integer.parseInt(parameters.get("roomId")[0]));
+                l.add("roomId");
             }
             if (parameters.get("type") != null) {
                 this.setType(Integer.parseInt(parameters.get("type")[0]));

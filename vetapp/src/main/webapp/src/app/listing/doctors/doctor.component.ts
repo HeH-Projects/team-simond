@@ -57,7 +57,7 @@ export class DoctorComponent implements OnInit{
         this.newDoctor = true;
 
         this.doctors.forEach(doctor => {
-            if(doctor.name.indexOf(term) != -1){
+            if(doctor.name.toLowerCase().indexOf(term.toLowerCase()) != -1){
                 doctorsList.push(doctor);
             }
 
@@ -137,10 +137,10 @@ export class DoctorComponent implements OnInit{
                     doctor[this.days[j]] = doctor[this.days[j]].replace(/"/g, '');
                 }
             });
-            this.doctors = doctors;
+            this.doctors = doctors.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
         });
 
-        this._requestService.getRooms().subscribe(rooms => this.rooms = rooms);
+        this._requestService.getRooms().subscribe(rooms => this.rooms = rooms.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);}));
 
         this.searchField = new FormControl("", [Validators.required, Validators.pattern(/^[A-Za-z]+[\s]{0,1}[A-Za-z]+$/)]);
         this.searchField.valueChanges.distinctUntilChanged().subscribe( val => {

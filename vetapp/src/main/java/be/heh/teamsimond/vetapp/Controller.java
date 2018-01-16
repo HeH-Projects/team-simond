@@ -32,6 +32,8 @@ public class Controller {
         this.classMap.put("patient", Patient.class);
         this.classMap.put("room", Room.class);
         this.classMap.put("appointment", Appointment.class);
+        this.classMap.put("type", Type.class);
+        this.classMap.put("breed", Breed.class);
     }
 
     @RequestMapping(value = "/create/{class}", method = RequestMethod.POST)
@@ -51,12 +53,12 @@ public class Controller {
         return "";
     }
 
-    @RequestMapping(value = {"/update/{class}/{id}","/update/{class}/{id}/{patient_id}"}, method = RequestMethod.POST)
+    @RequestMapping(value = {"/update/{class}/{id}","/update/{class}/{id}/{research_term}"}, method = RequestMethod.POST)
     public String updateElement(@PathVariable("class") String strClass,
                                 @PathVariable("id") String strId,
-                                @PathVariable(value="patient_id", required=false) String strPatientId,
+                                @PathVariable(value="research_term", required=false) String researchTerm,
                                 HttpServletRequest request) {
-        IVetappElement e = this.getElementById(strClass, strId, strPatientId);
+        IVetappElement e = this.getElementById(strClass, strId, researchTerm);
         if (e != null) {
             e.update(request.getParameterMap());
             vetappElementRepository.update(e);
@@ -65,11 +67,11 @@ public class Controller {
         return "";
     }
 
-    @RequestMapping(value = {"/delete/{class}/{id}", "/delete/{class}/{id}/{patient_id}"}, method = RequestMethod.DELETE)
+    @RequestMapping(value = {"/delete/{class}/{id}", "/delete/{class}/{id}/{research_term}"}, method = RequestMethod.DELETE)
     public String deleteElement(@PathVariable("class") String strClass,
                                 @PathVariable("id") String strId,
-                                @PathVariable(value="patient_id", required=false) String strPatientId) {
-        IVetappElement e = this.getElementById(strClass, strId, strPatientId);
+                                @PathVariable(value="research_term", required=false) String researchTerm) {
+        IVetappElement e = this.getElementById(strClass, strId, researchTerm);
         if (e != null) {
             vetappElementRepository.delete(e);
             return objectToString(e, "json", this.classMap.get(strClass));
@@ -125,32 +127,34 @@ public class Controller {
         return "";
     }
 
-    @RequestMapping(value = {"/{markup}/{class}/{id}", "/{markup}/{class}/{id}/{patient_id}"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/{markup}/{class}/{id}", "/{markup}/{class}/{id}/{research_term}"}, method = RequestMethod.GET)
     public String getElementById_String(@PathVariable("markup") String strMarkup,
                                         @PathVariable("class") String strClass,
                                         @PathVariable("id") String strId,
-                                        @PathVariable(value="patient_id", required=false) String strPatientId) {
-        IVetappElement e = this.getElementById(strClass, strId, strPatientId);
+                                        @PathVariable(value="research_term", required=false) String researchTerm) {
+        IVetappElement e = this.getElementById(strClass, strId, researchTerm);
         if (e != null) {
             return objectToString(e, strMarkup, this.classMap.get(strClass));
         } else {
             return objectToString(new VetappElement(), strMarkup, VetappElement.class);
         }
     }
-    private IVetappElement getElementById(String strClass, String strId, String strPatientId) {
+    private IVetappElement getElementById(String strClass, String strId, String researchTerm) {
         if (this.classMap.get(strClass) != null) {
             List<IVetappElement> l = new ArrayList<>();
             if (strClass.equals("appointment")) {
                 try {
                     Date date = (new SimpleDateFormat("yyyy-MM-dd'T'HH:mm")).parse(strId);
-                    l = vetappElementRepository.findAppointmentByDate_Patient(date, Integer.parseInt(strPatientId));
+                    l = vetappElementRepository.findAppointmentByDate_Patient(date, Integer.parseInt(researchTerm));
                 } catch (Exception e) {}
-            } else if(strClass.equals("customer") && strPatientId != null) {
+            } else if(strClass.equals("customer") && researchTerm != null) {
                 try {
-                    l = vetappElementRepository.findCustomerByPatient(Integer.parseInt(strPatientId));
+                    l = vetappElementRepository.findCustomerByPatient(Integer.parseInt(researchTerm));
                 } catch (Exception e) {}
-            } else if(strClass.equals("room") && strPatientId != null){
-                l = vetappElementRepository.findRoomByName(strPatientId);
+            } else if(strClass.equals("room") && researchTerm != null){
+                l = vetappElementRepository.findRoomByName(researchTerm);
+            } else if(strClass.equals("breed") && researchTerm != null){
+                l = vetappElementRepository.findBreedsByType(Integer.parseInt(researchTerm));
             }
             else {
                 try {

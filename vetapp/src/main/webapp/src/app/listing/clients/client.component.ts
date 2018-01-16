@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { FormControl, Validators, AbstractControl } from '@angular/forms';
 import { RequestService } from '../../service/request.service';
 import {Observable} from "rxjs/Observable";
 import {Customer} from "../../models/customer";
 import {isNullOrUndefined} from "util";
 import {Patient} from "../../models/patient";
+import {Type} from "../../models/type";
+import {Breed} from "../../models/breed";
 
 @Component({
   selector: 'pm-client',
@@ -20,11 +22,16 @@ export class ClientComponent implements OnInit {
   customers: Customer[];
   customersSearchList: Observable<Customer[]>;
   currentCustomer: Customer;
+  choosingCustomerById: boolean = false;
+  address: FormControl;
+  postalCode: FormControl;
+  town: FormControl;
+  phone: FormControl;
 
   //Patient
   currentPatients: Patient[];
-  animalTypes : any = [{ name : "chien", id : 1}, {name : "chat", id : 2}];
-  breeds : any = [{name : "bichon", id : 1}, {name : "siamois", id : 2}];
+  animalTypes : Type[];
+  breeds : Breed[];
 
   private validationMessages = {
       required : "Veuillez entrer le nom d'un client.",
@@ -52,18 +59,32 @@ export class ClientComponent implements OnInit {
       this.newCustomer = true;
 
       this.customers.forEach(customer => {
-          if(customer.name.indexOf(term) != -1){
+          if(customer.name.toLowerCase().indexOf(term.toLowerCase()) != -1){
               customersList.push(customer);
           }
 
-          if(customer.name == term){
-              this.newCustomer = false;
-              this.currentCustomer = this.getCustomerByName(term);
-              this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
-                 this.currentPatients = patients;
-              });
+          if(!this.choosingCustomerById){
+              if(customer.name == term){
+                  this.newCustomer = false;
+                  this.currentCustomer = this.getCustomerByName(term);
+                  this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
+                      this.currentPatients = patients.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
+                  });
+              }
           }
       });
+
+      if(!isNullOrUndefined(this.currentCustomer)){
+          this.address.setValue(this.currentCustomer.address);
+          this.postalCode.setValue(this.currentCustomer.postalCode);
+          this.town.setValue(this.currentCustomer.town);
+          this.phone.setValue(this.currentCustomer.phone);
+      }
+
+      if(this.choosingCustomerById){
+          this.newCustomer = false;
+          this.choosingCustomerById = false;
+      }
 
       if(this.newCustomer){
           this.currentCustomer = null;
@@ -97,8 +118,9 @@ export class ClientComponent implements OnInit {
   updateSearchField(id: number): void{
       this.currentCustomer = this.getCustomerById(id);
       this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
-          this.currentPatients = patients;
+          this.currentPatients = patients.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
       });
+      this.choosingCustomerById = true;
       this.searchField.setValue(this.currentCustomer.name);
   }
 
@@ -129,7 +151,7 @@ export class ClientComponent implements OnInit {
 
   //Initialisation du composant
   ngOnInit() : void {
-     this._requestService.getCustomers().subscribe(customers => this.customers = customers);
+     this._requestService.getCustomers().subscribe(customers => this.customers = customers.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);}));
 
      this.searchField = new FormControl("", [Validators.required, Validators.pattern(/^[A-Za-z]+([\s][A-Za-z]+){1,2}$/)]);
      this.searchField.valueChanges.distinctUntilChanged().subscribe( val => {
@@ -137,23 +159,36 @@ export class ClientComponent implements OnInit {
 
         this.setValidationMessage(this.searchField);
      });
+
+      this.address = new FormControl("", [Validators.required, Validators.pattern(/^[A-Za-z\-]+[,][\s]?[0-9]+$/)]);
+      this.postalCode = new FormControl("", [Validators.required, Validators.pattern(/^[0-9]{4}$/)]);
+      this.town = new FormControl("", [Validators.required, Validators.pattern(/^[A-Za-z\-]{3, 50}$/)]);
+      this.phone = new FormControl("", [Validators.required, Validators.pattern(/^[0-9]{9,10}$/)]);
+
+     this._requestService.getTypes().subscribe(types => this.animalTypes = types.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);}));
+     this._requestService.getBreeds().subscribe(breeds => this.breeds = breeds.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);}));
   }
 
   //Fonctions CUD
   submitCustomer(submitCase) : void{
      if(this.searchField.value.trim()){
-        if(isNullOrUndefined(this.currentCustomer)){
+        if(isNullOrUndefined(this.currentCustomer) && !this.newCustomer){
             this.currentCustomer = this.getCustomerByName(this.searchField.value);
             this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
                 this.currentPatients = patients;
             });
         }
+
+        let cusToSend = new FormData();
+        cusToSend.append("name", this.searchField.value);
+        cusToSend.append("address", this.address.value);
+        cusToSend.append("postalCode", this.postalCode.value);
+        cusToSend.append("town", this.town.value);
+        cusToSend.append("phone", this.phone.value);
+
         switch(submitCase){
             case 'new' :
-                let cusToAdd = new FormData();
-                cusToAdd.append("name", this.searchField.value);
-
-                this._requestService.addCustomer(cusToAdd).subscribe((customer: Customer) => {
+                this._requestService.addCustomer(cusToSend).subscribe((customer: Customer) => {
                     this.customers.push(customer);
                     this.currentCustomer = customer;
                     this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
@@ -164,10 +199,7 @@ export class ClientComponent implements OnInit {
                 break;
             case 'modify' :
                 if(!isNullOrUndefined(this.currentCustomer)) {
-                    let cusToChange = new FormData();
-                    cusToChange.append("name", this.searchField.value);
-
-                    this._requestService.modifyCustomer(this.currentCustomer.id, cusToChange).subscribe((customer: Customer) => {
+                    this._requestService.modifyCustomer(this.currentCustomer.id, cusToSend).subscribe((customer: Customer) => {
                         this.customers.forEach((customerInList: Customer) => {
                             //Une méthode 'isEqualTo' dans le modèle 'Customer' aurait été plus appropriée mais je n'ai pas réussi
                             if (customerInList.id == customer.id && customerInList.name == customer.name) {

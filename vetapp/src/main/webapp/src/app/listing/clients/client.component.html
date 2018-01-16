@@ -2,19 +2,34 @@
 <main>
 	<header>
 		<form id="customer">
-			<label for="customerSearch" [ngClass]="{'has-error': customerSearchMessage}">
+			<label for="name" [ngClass]="{'has-error': customerSearchMessage}">
 				<span>Client</span>
+				<input id="name" name="name" type="search" [formControl]="searchField">
 			</label>
-			<input id="customerSearch" type="search" [formControl]="searchField">
 			<ul class="search-result">
 				<li *ngFor="let customer of customersSearchList | async" (click)="updateSearchField(customer.id)">
 					{{customer.name}}
 				</li>
 			</ul>
-			<h2 *ngIf="currentCustomer">{{currentCustomer.id}}:{{currentCustomer.name}}</h2>
 			<span class="message-block" *ngIf="customerSearchMessage">
 				{{customerSearchMessage}}
 			</span>
+			<label for="address">
+				<span>Adresse</span>
+				<input id="address" name="address" type="text" pattern="[A-Za-z\-]+[,][\s]?[0-9]+" [formControl]="address">
+			</label>
+			<label for="postal_code">
+				<span>Code postal</span>
+				<input id="postal_code" name="postal_code" type="text" pattern="[0-9]{4}" [formControl]="postalCode">
+			</label>
+			<label for="town">
+				<span>Ville</span>
+				<input id="town" name="town" type="text" [formControl]="town" pattern="[A-Za-z\-]{3,50}">
+			</label>
+			<label for="phone">
+				<span>Téléphone</span>
+				<input id="phone" name="phone" type="tel" pattern="[0-9]{9,10}" [formControl]="phone">
+			</label>
 			<button *ngIf="newCustomer" type="submit" id="newCustomer" (click)="submitCustomer('new')">
 				Ajouter
 			</button>
@@ -37,12 +52,7 @@
 						<label>
 							<span>Type:</span>
 							<select name="type">
-								<ng-container *ngFor="let type of animalTypes">
-									<option *ngIf="isPatientType(patient.id, type.id); else notSelectedType" value="{{type.id}}" selected>{{type.name}}</option>
-									<ng-template #notSelectedType>
-										<option value="{{type.id}}">{{type.name}}</option>
-									</ng-template>
-								</ng-container>
+								<option *ngFor="let type of animalTypes" value="{{type.id}}" [selected]="isPatientType(patient.id, type.id)">{{type.name}}</option>
 							</select>
 						</label>
 						<label>

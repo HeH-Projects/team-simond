@@ -36,7 +36,7 @@ export class RoomComponent implements OnInit {
      this.newRoom = true;
 
      this.rooms.forEach(room => {
-        if(room.name.indexOf(term) != -1){
+        if(room.name.toLowerCase().indexOf(term.toLowerCase()) != -1){
             roomsList.push(room);
         }
 

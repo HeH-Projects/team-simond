@@ -23,6 +23,7 @@ public class Patient implements IVetappElement {
     private int breed;
     @Column(name="has_picture")
     private boolean hasPic = false;
+    private byte[] picture = null;
 
     public int getId() {
         return id;
@@ -63,6 +64,12 @@ public class Patient implements IVetappElement {
     }
     public void hasPic(boolean hasPic) {
         this.hasPic = hasPic;
+    }
+    public byte[] getPicture() {
+        return picture;
+    }
+    public void setPicture(byte[] picture) {
+        this.picture = picture;
     }
 
     public static IVetappElement generate(Map<String, String[]> parameters){

@@ -17,6 +17,11 @@ public class Customer implements IVetappElement {
     @GenericGenerator(name="increment", strategy = "increment")
     private int id;
     private String name;
+    private String address;
+    @Column(name="postal_code")
+    private int postalCode;
+    private String town;
+    private String phone;
 
     public int getId() {
         return id;
@@ -34,11 +39,47 @@ public class Customer implements IVetappElement {
         }
         return false;
     }
+    public String getAddress() {
+        return address;
+    }
+    public Boolean setAddress(String address) {
+        if (address.length() > 0) {
+            this.address = address;
+            return true;
+        }
+        return false;
+    }
+    public int getPostalCode() {
+        return postalCode;
+    }
+    public void setPostalCode(int postalCode) {
+        this.postalCode = postalCode;
+    }
+    public String getTown() {
+        return town;
+    }
+    public Boolean setTown(String town) {
+        if (town.length() > 0) {
+            this.town = town;
+            return true;
+        }
+        return false;
+    }
+    public String getPhone() {
+        return phone;
+    }
+    public Boolean setPhone(String phone) {
+        if (phone.length() > 0) {
+            this.phone = phone;
+            return true;
+        }
+        return false;
+    }
 
     public static IVetappElement generate(Map<String, String[]> parameters) {
         Customer e = new Customer();
         List<String> l = e.update(parameters);
-        if (l.contains("name")) {
+        if (l.contains("name") && l.contains("address") && l.contains("postalCode") && l.contains("town") && l.contains("phone")) {
             return e;
         }
         return null;
@@ -49,6 +90,25 @@ public class Customer implements IVetappElement {
             if (parameters.get("name") != null) {
                 if (this.setName(parameters.get("name")[0])) {
                     l.add("name");
+                }
+            }
+            if (parameters.get("address") != null) {
+                if (this.setAddress(parameters.get("address")[0])) {
+                    l.add("address");
+                }
+            }
+            if (parameters.get("postalCode") != null) {
+                this.setPostalCode(Integer.parseInt(parameters.get("postalCode")[0]));
+                l.add("postalCode");
+            }
+            if (parameters.get("town") != null) {
+                if (this.setTown(parameters.get("town")[0])) {
+                    l.add("town");
+                }
+            }
+            if (parameters.get("phone") != null) {
+                if (this.setPhone(parameters.get("phone")[0])) {
+                    l.add("phone");
                 }
             }
         } catch(Exception e) {}
