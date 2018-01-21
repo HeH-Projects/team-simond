@@ -4,14 +4,18 @@ Master State: [![Build Status](https://travis-ci.org/HeH-Projects/team-simond.sv
 
 Develop State: [![Build Status](https://travis-ci.org/HeH-Projects/team-simond.svg?branch=develop)](https://travis-ci.org/HeH-Projects/team-simond)
 
+Project Status: [![GitHub issues](https://img.shields.io/github/issues/HeH-Projects/team-simond.svg)](https://github.com/HeH-Projects/team-simond/issues)
+
 <img src="https://angular.io/assets/images/logos/angular/angular.svg" alt="Angular logo" height="150"> <img src="https://www.javatpoint.com/images/spimages/spring1.png" alt="Le logo de java Spring" height="150">
 
-This repository is a temporary project with training as the main purpose.
+This repository is a temporary project with new technologies' training as the main purpose.
+Ce dépot est un projet temporaire avec comme objectif principal la formation aux nouvelles technologies.
 
-The content is a website based on angular using RestAPI made with spring framework.
-Le contenu est un site fait avec le framework Java Spring.
+The content is a website based on angular using a RestAPI made with Spring framework.
+Le contenu est un site angular utilisant un API Rest fait avec le framework Spring.
 
 A simple appointments' handling app for a vet hospital.
+Une simple application de gestion des rendez-vous pour un institut vétérinaire.
 
 | Collaborator      | Function      |
 |-------------------|---------------|

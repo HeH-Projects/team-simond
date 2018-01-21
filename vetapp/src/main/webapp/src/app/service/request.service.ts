@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { of } from 'rxjs/observable/of';
 import {Doctor} from "../models/doctor";
 import {TokenService} from "./token.service";
 import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
@@ -12,6 +11,7 @@ import {Patient} from "../models/patient";
 import {Appointment} from "../models/appointment";
 import {Type} from "../models/type";
 import {Breed} from "../models/breed";
+import {of} from "rxjs/observable/of";
 
 @Injectable()
 export class RequestService {
@@ -26,27 +26,34 @@ export class RequestService {
      * @param operation - name of the operation that failed
      * @param result - optional value to return as the observable result
      */
-    private handleError<T> (operation = 'operation', result?: T) {
+    private handleError<T> (operation = 'operation', parameters = [], result?: T) {
         return (error: HttpErrorResponse): Observable<T> => {
 
             // Log l'erreur
             this.log(`${operation} failed: ${error.message}`);
 
             if( error.error instanceof Error){
-                this.log('An error occurred: ' + error.error.message)
+                this.log('An error occurred: ' + error.error.message);
+                // Let the app keep running by returning an empty result.
+                return of(result as T);
             }else{
                 this.log(`Backend returned code ${error.status}, body was: ${error.error}`);
                 if(error.status == 401){
-                    this.log("refreshing token");
                     this._tokenService.refreshMyToken();
+                    if(parameters.length < 1){
+                        return this[operation]();
+                    }else if(parameters.length <2){
+                        return this[operation](parameters[0]);
+                    }else if(parameters.length < 3){
+                        return this[operation](parameters[0], parameters[1]);
+                    }else{
+                        return this[operation](parameters[0], parameters[1], parameters[2]);
+                    }
+                }else{
+                    // Let the app keep running by returning an empty result.
+                    return of(result as T);
                 }
             }
-
-            //Séparation pour les logs suivants
-            this.messageService.add('-----------------------------------------------------------');
-
-            // Let the app keep running by returning an empty result.
-            return of(result as T);
         };
     }
 
@@ -98,7 +105,7 @@ export class RequestService {
         return this._http.get<Appointment[]>('/api/json/appointments/'+date, {headers})
             .pipe(
                 tap((appointments: Appointment[]) => this.log(`found appointments (${appointments}) by date: ${date}`)),
-                catchError(this.handleError<Appointment[]>('findAppointmentsByDate'))
+                catchError(this.handleError<Appointment[]>('findAppointmentsByDate', [date]))
             );
     }
 
@@ -107,7 +114,7 @@ export class RequestService {
         return this._http.get<Customer>('/api/json/customer/0/'+id, {headers})
             .pipe(
                 tap((customer: Customer) => this.log(`found customer (${customer.name}) by patient id`)),
-                catchError(this.handleError<Customer>('findCustomerByPatientId'))
+                catchError(this.handleError<Customer>('findCustomerByPatientId', [id]))
             );
     }
 
@@ -116,7 +123,7 @@ export class RequestService {
         return this._http.get<Patient[]>('/api/json/patients?customer='+id, {headers})
             .pipe(
                 tap((patients: Patient[]) => this.log(`found patients (${patients}) by customer id`)),
-                catchError(this.handleError<Patient[]>('findPatientsByCustomerId'))
+                catchError(this.handleError<Patient[]>('findPatientsByCustomerId', [id]))
             );
     }
 
@@ -125,7 +132,7 @@ export class RequestService {
         return this._http.get<Breed[]>('/api/json/breeds?type='+id, {headers})
             .pipe(
                 tap((breeds: Breed[]) => this.log(`found breeds (${breeds}) by type`)),
-                catchError(this.handleError<Breed[]>('findBreedsByType'))
+                catchError(this.handleError<Breed[]>('findBreedsByType', [id]))
             );
     }
 
@@ -134,7 +141,7 @@ export class RequestService {
         return this._http.post<Doctor>('/api/create/doctor', data, {headers})
             .pipe(
                 tap((doctor: Doctor) => this.log(`added customer with id=${doctor.id}`)),
-                catchError(this.handleError<Doctor>('addDoctor'))
+                catchError(this.handleError<Doctor>('addDoctor', [data]))
             );
     }
 
@@ -143,7 +150,7 @@ export class RequestService {
         return this._http.post<Doctor>('/api/update/doctor/'+id, data, {headers})
             .pipe(
                 tap((doctor: Doctor) => this.log(`updated doctor: ${doctor}`)),
-                catchError(this.handleError<Doctor>('modifyDoctor'))
+                catchError(this.handleError<Doctor>('modifyDoctor', [id, data]))
             );
     }
 
@@ -152,7 +159,7 @@ export class RequestService {
         return this._http.delete<Doctor>('/api/delete/doctor/'+id, {headers})
             .pipe(
                 tap(_ => this.log(`removed doctor with id=${id}`)),
-                catchError(this.handleError<Doctor>('removeDoctor'))
+                catchError(this.handleError<Doctor>('removeDoctor', [id]))
             );
     }
 
@@ -161,7 +168,7 @@ export class RequestService {
         return this._http.post<Room>('/api/create/room', data, {headers})
             .pipe(
                 tap((room: Room) => this.log(`added room with id=${room.id}`)),
-                catchError(this.handleError<Room>('addRoom'))
+                catchError(this.handleError<Room>('addRoom', [data]))
             );
     }
 
@@ -170,7 +177,7 @@ export class RequestService {
         return this._http.delete<Room>('/api/delete/room/0/'+name, {headers})
             .pipe(
                 tap((room: Room) => this.log(`removed room with id=${room.id}`)),
-                catchError(this.handleError<Room>('removeRoom'))
+                catchError(this.handleError<Room>('removeRoom', [name]))
             );
     }
 
@@ -179,7 +186,7 @@ export class RequestService {
         return this._http.post<Customer>('/api/create/customer', data, {headers})
             .pipe(
                 tap((customer: Customer) => this.log(`added customer with id=${customer.id}`)),
-                catchError(this.handleError<Customer>('addCustomer'))
+                catchError(this.handleError<Customer>('addCustomer', [data]))
             );
     }
 
@@ -188,7 +195,7 @@ export class RequestService {
         return this._http.post('/api/update/customer/'+id, data, {headers})
             .pipe(
                 tap((customer: Customer) => this.log(`updated customer: ${customer}`)),
-                catchError(this.handleError<Customer>('modifyCustomer'))
+                catchError(this.handleError<Customer>('modifyCustomer', [id, data]))
             );
     }
 
@@ -197,7 +204,7 @@ export class RequestService {
         return this._http.delete<Customer>('/api/delete/customer/'+id, {headers})
             .pipe(
                 tap(_ => this.log(`removed customer with id=${id}`)),
-                catchError(this.handleError<Customer>('removeCustomer'))
+                catchError(this.handleError<Customer>('removeCustomer', [id]))
             );
     }
 
@@ -206,7 +213,7 @@ export class RequestService {
         return this._http.post<Patient>('/api/create/patient', data, {headers})
             .pipe(
                 tap((patient: Patient) => this.log(`added patient with id=${patient.id}`)),
-                catchError(this.handleError<Patient>('addPatient'))
+                catchError(this.handleError<Patient>('addPatient', [data]))
             );
     }
 
@@ -215,7 +222,7 @@ export class RequestService {
         return this._http.post('/api/update/patient/'+id, data, {headers})
             .pipe(
                 tap((patient: Patient) => this.log(`updated patient: ${patient}`)),
-                catchError(this.handleError<Patient>('modifyPatient'))
+                catchError(this.handleError<Patient>('modifyPatient', [id, data]))
             );
     }
 
@@ -224,7 +231,7 @@ export class RequestService {
         return this._http.delete<Patient>('/api/delete/patient/'+id, {headers})
             .pipe(
                 tap(_ => this.log(`removed patient with id=${id}`)),
-                catchError(this.handleError<Patient>('removePatient'))
+                catchError(this.handleError<Patient>('removePatient', [id]))
             );
     }
 
@@ -233,7 +240,7 @@ export class RequestService {
         return this._http.post<Appointment>('/api/create/appointment', data, {headers})
             .pipe(
                 tap((appointment: Appointment) => this.log(`added appointment with date=${appointment.date}`)),
-                catchError(this.handleError<Appointment>('addAppointment'))
+                catchError(this.handleError<Appointment>('addAppointment', [data]))
             );
     }
 
@@ -242,7 +249,7 @@ export class RequestService {
         return this._http.post('/api/update/appointment/'+date+"/"+patientId, data, {headers})
             .pipe(
                 tap((appointment: Appointment) => this.log(`updated Appointment:${appointment} on date=${date} for patient id=${patientId}`)),
-                catchError(this.handleError<Appointment>('modifyAppointment'))
+                catchError(this.handleError<Appointment>('modifyAppointment', [date, patientId, data]))
             );
     }
 
@@ -251,7 +258,7 @@ export class RequestService {
         return this._http.delete<Appointment>('/api/delete/appointment/'+date+"/"+patientId, {headers})
             .pipe(
                 tap(_ => this.log(`removed Appointment on date=${date} for patient id=${patientId}`)),
-                catchError(this.handleError<Appointment>('removeAppointment'))
+                catchError(this.handleError<Appointment>('removeAppointment', [date, patientId]))
             );
     }
 }

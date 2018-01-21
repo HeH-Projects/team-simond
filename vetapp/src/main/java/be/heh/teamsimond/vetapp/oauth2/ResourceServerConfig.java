@@ -17,6 +17,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
         // static resources
         http.authorizeRequests().antMatchers("/index.html", "/", "/*.js", "/*.css", "/assets/**").permitAll();
+        http.authorizeRequests().antMatchers("index.html", "/", "/home", "/login", "/users", "/users/**", "/*.js", "/*.css", "/assets/**").permitAll();
 
         http.authorizeRequests().anyRequest().authenticated();
     }

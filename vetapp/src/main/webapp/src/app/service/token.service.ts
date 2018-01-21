@@ -41,17 +41,17 @@ export class TokenService{
         headers = headers.append("Content-Type", "application/x-www-form-urlencoded");
 
         return this._http.post('/oauth/token?grant_type=refresh_token&refresh_token='+this.data.refresh_token, this.data, {headers}).subscribe(data => {
-                        this.data = data;
-                    }, (err: HttpErrorResponse) =>{
-                        if( err.error instanceof Error){
-                            console.log('An error occurred: ', err.error.message)
-                        }else{
-                            console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
-                            if(err.status == 401){
-                                this.getNewToken(this.login, this.password, null);
-                            }
-                        }
-                    });
+            this.data = data;
+        }, (err: HttpErrorResponse) =>{
+            if( err.error instanceof Error){
+                console.log('An error occurred: ', err.error.message)
+            }else{
+                console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
+                if(err.status == 401){
+                    this.getNewToken(this.login, this.password, null);
+                }
+            }
+        });
     }
 
     getMyToken(): HttpHeaders{
