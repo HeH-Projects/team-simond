@@ -18,13 +18,13 @@ export class AppointmentComponent implements OnInit{
     weekView : boolean;
     
     appointmentDurations = [.5,.75,1];
-    roomColors : Array<any> = null;
+    roomColors : string[] = [];
     
     days : any = [];
     doctors : Doctor[] = [];
     rooms : Room[] = [];
-    roomNames : any = [];
     customers : Customer[] = [];
+    patients: Patient[] = [];
     types : any = [{id:1, name:"Visite"},{id:2, name:"Toilettage"},{id:3, name:"Pédicure"}];
 
     popup : any = null;
@@ -47,6 +47,7 @@ export class AppointmentComponent implements OnInit{
 
     private searchCustomers(term: string): Observable<Customer[]> {
         let customersList: Customer[] = new Array();
+        console.log("searching");
 
         if (!term.trim()) {
             return Observable.of(customersList);
@@ -92,6 +93,8 @@ export class AppointmentComponent implements OnInit{
     updateSearchField(id: number): void{
         this.currentCustomer = this.getCustomerById(id);
 
+        console.log("updating searchfield");
+
         let matchingCustomers: Customer[] = null;
         this.searchCustomers(this.currentCustomer.name).subscribe((customers: Customer[]) => {
                 matchingCustomers = customers;
@@ -110,11 +113,49 @@ export class AppointmentComponent implements OnInit{
         this.form_customer = this.currentCustomer.name;
     }
 
+    colorLuminance(hex, lum) {
+        // convert to decimal and change luminosity
+        let rgb = "#", c, i;
+        for (i = 0; i < 3; i++) {
+            c = parseInt(hex.substr(i*2,2), 16);
+            c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+            rgb += ("00"+c).substr(c.length);
+        }
+
+        return rgb;
+    }
+
+    getPatientName(id: number): string{
+        let answer: string = "";
+        this.patients.forEach((patient: Patient) => {
+            if(patient.id == id){
+                answer = patient.name;
+            }
+        });
+        return answer;
+    }
+
+    getRoomName(id: number): string{
+        let answer: string = "";
+        this.rooms.forEach((room: Room) => {
+            if(room.id == id){
+                answer = room.name;
+            }
+        });
+        return answer;
+    }
+
     ngOnInit() {
         this.iterableDiffer = this._iterableDiffers.find([]).create(null);
-        this.roomColors = [["#E57373","#D32F2F"],["#64B5F6","#1976D2"],["#AED581","#689F38"]];
         this._requestService.getRooms().subscribe((rooms: Room[]) => {
-            this.rooms = rooms.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
+            rooms.forEach(room => {
+                room['color'] = room['color'].replace(/"/g, '');
+                room['color'] = "#" + room['color'];
+            });
+            this.rooms = rooms.sort(function(a,b) {return (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0);});
+            this.rooms.forEach((room: Room) => {
+                this.roomColors.push(room.color);
+            });
         });
         this._requestService.getDoctors().subscribe((doctors: Doctor[]) => {
             //Fix pour les horaires de travail des médecins #Sample TextPart Backend
@@ -123,10 +164,13 @@ export class AppointmentComponent implements OnInit{
                     doctor[["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][j]] = doctor[["sunday","monday","tuesday","wednesday","thursday","friday","saturday"][j]].replace(/"/g, '');
                 }
             });
-            this.doctors = doctors.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
+            this.doctors = doctors.sort(function(a,b) {return (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0);});
         });
         this._requestService.getCustomers().subscribe((customers: Customer[]) => {
-            this.customers = customers.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
+            this.customers = customers.sort(function(a,b) {return (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0);});
+        });
+        this._requestService.getPatients().subscribe((patients: Patient[]) => {
+           this.patients = patients;
         });
         this.update();
     }
@@ -248,7 +292,7 @@ export class AppointmentComponent implements OnInit{
             this.currentCustomer = customer;
             this.customersSearchList = null;
             this.form.customer.value = customer.name;
-            this._requestService.findPatientsByCustomerId(customer.id).subscribe((patients: Patient[]) => {
+            this._requestService.findPatientsByCustomerId(customer.id).subscribe((patients: Patient[]) =>{
                 this.currentPatients = patients;
             });
         });
@@ -271,8 +315,10 @@ export class AppointmentComponent implements OnInit{
         }
     }
     onCustomerChange() {
-        var f = this.form;
-        this.customersSearchList = this.searchCustomers(f.customer.value);
+        if(!this.updateAppointement){
+            var f = this.form;
+            this.customersSearchList = this.searchCustomers(f.customer.value);
+        }
     }
 
     ngAfterViewChecked(){

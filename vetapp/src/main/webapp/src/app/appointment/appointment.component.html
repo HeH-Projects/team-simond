@@ -86,12 +86,12 @@
                         <div class="vetCal-appointment"
                             *ngFor="let appointment of day?.appointments | doctorId:doctor.id"
                             (click)="updateAppointment(appointment)"
-							[style.background-color]="roomColors[appointment.roomId % roomColors.length][0]"
-							[style.box-shadow]="'inset 4px 0 0' + roomColors[appointment.roomId % roomColors.length][1]"
-							[style.color]="roomColors[appointment.roomId % roomColors.length][1]"
+							[style.background-color]="roomColors[appointment.roomId - 1]"
+							[style.box-shadow]="'inset 4px 0 0 ' + colorLuminance(roomColors[appointment.roomId - 1], -0.5)"
+							[style.color]="roomColors[appointment.roomId - 1] + colorLuminance(roomColors[appointment.roomId - 1], -0.5)"
 							[style.height.%]="100 * appointmentDurations[(appointment.type-1)] / (closingHour - openingHour)"
 							[style.top.%]="100 * ((appointment.date.getHours() + (appointment.date.getMinutes() / 60)) - openingHour) / (closingHour - openingHour)">
-                            {{roomNames[appointment.roomId]}}
+                            {{getPatientName(appointment.patientId)}}<br>{{getRoomName(appointment.roomId)}}
                         </div>
                         <div *ngFor="let n of range(closingHour - openingHour)"
                             [style.height]="(100 / (closingHour - openingHour))+'%'"

@@ -82,6 +82,15 @@ export class RequestService {
             );
     }
 
+    getPatients(): Observable<Patient[]>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.get<Patient[]>('/api/json/patients', {headers})
+            .pipe(
+                tap((patients: Patient[]) => this.log(`fetched patients =${patients}`)),
+                catchError(this.handleError<Patient[]>('getPatients'))
+            );
+    }
+
     getRooms(): Observable<Room[]>{
         const headers: HttpHeaders = this._tokenService.getMyToken();
         return this._http.get<Room[]>('/api/json/rooms', {headers})
@@ -172,6 +181,15 @@ export class RequestService {
             );
     }
 
+    modifyRoom(name: string, data: FormData): Observable<Room>{
+        const headers: HttpHeaders = this._tokenService.getMyToken();
+        return this._http.post<Room>('/api/update/room/0/'+name, data, {headers})
+            .pipe(
+                tap((room: Room) => this.log(`updated room: ${room}`)),
+                catchError(this.handleError<Room>('modifyRoom', [name, data]))
+            );
+    }
+
     removeRoom(name : string): Observable<Room>{
         const headers: HttpHeaders = this._tokenService.getMyToken();
         return this._http.delete<Room>('/api/delete/room/0/'+name, {headers})
@@ -192,7 +210,7 @@ export class RequestService {
 
     modifyCustomer(id: number, data: FormData): Observable<Customer>{
         const headers: HttpHeaders = this._tokenService.getMyToken();
-        return this._http.post('/api/update/customer/'+id, data, {headers})
+        return this._http.post<Customer>('/api/update/customer/'+id, data, {headers})
             .pipe(
                 tap((customer: Customer) => this.log(`updated customer: ${customer}`)),
                 catchError(this.handleError<Customer>('modifyCustomer', [id, data]))
@@ -219,7 +237,7 @@ export class RequestService {
 
     modifyPatient(id: number, data: FormData): Observable<Patient>{
         const headers: HttpHeaders = this._tokenService.getMyToken();
-        return this._http.post('/api/update/patient/'+id, data, {headers})
+        return this._http.post<Patient>('/api/update/patient/'+id, data, {headers})
             .pipe(
                 tap((patient: Patient) => this.log(`updated patient: ${patient}`)),
                 catchError(this.handleError<Patient>('modifyPatient', [id, data]))
@@ -246,7 +264,7 @@ export class RequestService {
 
     modifyAppointment(date: string, patientId: string, data: FormData): Observable<Appointment>{
         const headers: HttpHeaders = this._tokenService.getMyToken();
-        return this._http.post('/api/update/appointment/'+date+"/"+patientId, data, {headers})
+        return this._http.post<Appointment>('/api/update/appointment/'+date+"/"+patientId, data, {headers})
             .pipe(
                 tap((appointment: Appointment) => this.log(`updated Appointment:${appointment} on date=${date} for patient id=${patientId}`)),
                 catchError(this.handleError<Appointment>('modifyAppointment', [date, patientId, data]))

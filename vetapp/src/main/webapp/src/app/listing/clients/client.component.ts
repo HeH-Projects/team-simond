@@ -65,7 +65,7 @@ export class ClientComponent implements OnInit {
                   this.newCustomer = false;
                   this.currentCustomer = this.getCustomerByName(term);
                   this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
-                      this.currentPatients = patients.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
+                      this.currentPatients = patients.sort(function(a,b) {return (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0);});
                   });
               }
           }
@@ -118,7 +118,7 @@ export class ClientComponent implements OnInit {
       this.currentCustomer = this.getCustomerById(id);
 
       this._requestService.findPatientsByCustomerId(this.currentCustomer.id).subscribe((patients: Patient[]) =>{
-          this.currentPatients = patients.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
+          this.currentPatients = patients.sort(function(a,b) {return (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0);});
       });
 
       this.choosingCustomerById = true;
@@ -127,7 +127,7 @@ export class ClientComponent implements OnInit {
 
   //Initialisation du composant
   ngOnInit() : void {
-     this._requestService.getCustomers().subscribe(customers => this.customers = customers.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);}));
+     this._requestService.getCustomers().subscribe(customers => this.customers = customers.sort(function(a,b) {return (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0);}));
 
      this.searchField = new FormControl("", [Validators.required, Validators.pattern(/^[A-Za-z]+([\s][A-Za-z]+){1,2}$/)]);
      this.searchField.valueChanges.distinctUntilChanged().subscribe( val => {

@@ -127,19 +127,19 @@ public class VetappElementRepositoryHibernate implements IVetappElementRepositor
         return list;
     }
 
-    public List<IVetappElement> findBreedsByType(int typeId){
+    public List<IVetappElement> findRoomByName(String name) {
         Session session = this.s_beginTransaction();
-        TypedQuery<IVetappElement> query = session.createQuery("FROM Breed c WHERE c.typeId = :type_id");
-        query.setParameter("type_id", typeId);
+        TypedQuery<IVetappElement> query = session.createQuery("FROM Room c WHERE c.name = :name");
+        query.setParameter("name", name);
         List<IVetappElement> list = query.getResultList();
         this.s_commitClose(session);
         return list;
     }
 
-    public List<IVetappElement> findRoomByName(String name) {
+    public List<IVetappElement> findBreedsByType(int typeId){
         Session session = this.s_beginTransaction();
-        TypedQuery<IVetappElement> query = session.createQuery("FROM Room c WHERE c.name = :name");
-        query.setParameter("name", name);
+        TypedQuery<IVetappElement> query = session.createQuery("FROM Breed c WHERE c.typeId = :type_id");
+        query.setParameter("type_id", typeId);
         List<IVetappElement> list = query.getResultList();
         this.s_commitClose(session);
         return list;

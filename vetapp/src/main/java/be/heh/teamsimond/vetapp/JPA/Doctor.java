@@ -209,6 +209,7 @@ class DoctorTimeSlots {
     private String slotToString(int[] slot) {
         return Integer.toString(slot[0]) + "-" + Integer.toString(slot[1] + 1);
     }
+
     public String[] byteToTimeSlot(byte[] bytes) {
         List<String> list = new ArrayList<>();
         int[] slot = new int[2];
@@ -232,7 +233,7 @@ class DoctorTimeSlots {
         }
         return r;
     }
-    public DoctorTimeSlots() {}
+
     public DoctorTimeSlots(byte[] monday, byte[] tuesday, byte[] wednesday, byte[] thursday, byte[] friday, byte[] saturday, byte[] sunday) {
         this.monday = byteToTimeSlot(monday);
         this.tuesday = byteToTimeSlot(tuesday);

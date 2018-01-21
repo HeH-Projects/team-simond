@@ -11,11 +11,10 @@ public interface IVetappElementRepository {
     List<IVetappElement> findAppointmentsInInterval(Date start, Date end);
     List<IVetappElement> findAppointmentByDate_Patient(Date date, int patientId);
     List<IVetappElement> findAppointmentsByPatient(int patientId);
-    List<IVetappElement> findCustomerByPatient(int cutomerId);
+    List<IVetappElement> findCustomerByPatient(int patientId);
+    List<IVetappElement> findRoomByName(String name);
     List<IVetappElement> findBreedsByType(int typeId);
     void update(IVetappElement e);
     void save(IVetappElement e);
     void delete(IVetappElement e);
-
-    List<IVetappElement> findRoomByName(String name);
 }

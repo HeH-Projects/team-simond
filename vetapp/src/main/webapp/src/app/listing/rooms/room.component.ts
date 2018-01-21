@@ -5,6 +5,7 @@ import {Room} from "../../models/room";
 import {Observable} from "rxjs/Observable";
 import "rxjs/add/observable/of";
 import 'rxjs/add/operator/distinctUntilChanged';
+import {Doctor} from "../../models/doctor";
 
 @Component({
   selector: 'pm-room',
@@ -42,6 +43,7 @@ export class RoomComponent implements OnInit {
 
         if(room.name == term){
             this.newRoom = false;
+            (document.getElementById("color") as HTMLInputElement).value = room.color;
         }
      });
 
@@ -49,7 +51,13 @@ export class RoomComponent implements OnInit {
   }
 
   ngOnInit() : void {
-     this._requestService.getRooms().subscribe(rooms => this.rooms = rooms);
+     this._requestService.getRooms().subscribe(rooms => {
+         rooms.forEach(room => {
+             room['color'] = room['color'].replace(/"/g, '');
+             room['color'] = "#" + room['color'];
+         });
+         this.rooms = rooms.sort(function(a,b) {return (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0);});
+     });
 
      this.searchField = new FormControl("", [Validators.required, Validators.pattern(/^\S[A-Za-z0-9\s]+\S$/)]);
      this.searchField.valueChanges.distinctUntilChanged().subscribe( val => {
@@ -70,13 +78,27 @@ export class RoomComponent implements OnInit {
      if(this.searchField.value.trim()){
         switch(submitCase){
             case 'new' :
-                 let dataToAdd = new FormData();
-                 dataToAdd.append("name", this.searchField.value);
-                 this._requestService.addRoom(dataToAdd).subscribe(room => {
+                 let roomToAdd = new FormData();
+                 roomToAdd.append("name", this.searchField.value);
+                 roomToAdd.append("color", (document.getElementById("color") as HTMLInputElement).value.replace(/#/g, '').toUpperCase());
+                 this._requestService.addRoom(roomToAdd).subscribe(room => {
                     this.rooms.push(room);
                     this.newRoom = false;
                  });
                break;
+            case 'modify' :
+                let roomToChange = new FormData();
+                roomToChange.append("name", this.searchField.value);
+                roomToChange.append("color", (document.getElementById("color") as HTMLInputElement).value.replace(/#/g, '').toUpperCase());
+                this._requestService.modifyRoom(this.searchField.value, roomToChange).subscribe(room => {
+                    this.rooms.forEach( (roomInList: Room) => {
+                        //Une méthode 'isEqualTo' dans le modèle 'Doctor' aurait été plus appropriée mais je n'ai pas réussi
+                        if(roomInList.id == room.id && roomInList.name == room.name){
+                            this.rooms.splice(this.rooms.indexOf(roomInList), 1, room);
+                        }
+                    });
+                });
+                break;
             case 'remove' :
                if(!this.newRoom){
                    this._requestService.removeRoom(this.searchField.value).subscribe((room: Room) => {

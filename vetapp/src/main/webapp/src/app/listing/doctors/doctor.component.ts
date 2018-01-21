@@ -137,10 +137,10 @@ export class DoctorComponent implements OnInit{
                     doctor[this.days[j]] = doctor[this.days[j]].replace(/"/g, '');
                 }
             });
-            this.doctors = doctors.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);});
+            this.doctors = doctors.sort(function(a,b) {return (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0);});
         });
 
-        this._requestService.getRooms().subscribe(rooms => this.rooms = rooms.sort(function(a,b) {return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);}));
+        this._requestService.getRooms().subscribe(rooms => this.rooms = rooms.sort(function(a,b) {return (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0);}));
 
         this.searchField = new FormControl("", [Validators.required, Validators.pattern(/^[A-Za-z]+[\s]{0,1}[A-Za-z]+$/)]);
         this.searchField.valueChanges.distinctUntilChanged().subscribe( val => {
