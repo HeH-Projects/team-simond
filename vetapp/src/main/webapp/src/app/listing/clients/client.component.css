@@ -40,13 +40,6 @@ label + label {
   padding-top: 1em;
 }
 
-.customer span,
-.customer label,
-.customer input[type=submit] {
-  display: block;
-  width: 80px;
-}
-
 section, #customer {
   max-width: 600px;
   margin: auto;
