@@ -40,6 +40,10 @@ main{
   color: #4a6b82;
 }
 
+#color{
+	height: 100%;
+}
+
 #room button{
   margin: 0;
   padding: 0;

@@ -25,7 +25,7 @@ label select {
   vertical-align: middle;
 }
 label span {
-  width: 80px;
+  width: 120px;
   padding: 0 .6em;
   border-right: 0;
 }
@@ -34,7 +34,7 @@ label select {
   font-size: .8em;
   height: 1.8rem;
   display: inline-block;
-  width: calc(100% - 80px);
+  width: calc(100% - 120px) !important;
 }
 label + label {
   padding-top: 1em;
@@ -47,8 +47,13 @@ label + label {
   width: 80px;
 }
 
-section {
+section, #customer {
   max-width: 600px;
+  margin: auto;
+}
+
+section article {
+	margin-top: 20px;
 }
 
 .button {

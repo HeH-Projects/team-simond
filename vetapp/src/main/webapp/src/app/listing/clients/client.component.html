@@ -3,8 +3,7 @@
 	<header>
 		<form id="customer">
 			<label for="name" [ngClass]="{'has-error': customerSearchMessage}">
-				<span>Client</span>
-				<input id="name" name="name" type="search" [formControl]="searchField">
+				<span>Client</span><input id="name" name="name" type="search" [formControl]="searchField">
 			</label>
 			<ul class="search-result">
 				<li *ngFor="let customer of customersSearchList | async" (click)="updateSearchField(customer.id)">
@@ -15,20 +14,16 @@
 				{{customerSearchMessage}}
 			</span>
 			<label for="address">
-				<span>Adresse</span>
-				<input id="address" name="address" type="text" pattern="[A-Za-z\-]+[,][\s]?[0-9]+" [formControl]="address">
+				<span>Adresse</span><input id="address" name="address" type="text" pattern="[A-Za-z\-]+[,][\s]?[0-9]+" [formControl]="address">
 			</label>
 			<label for="postal_code">
-				<span>Code postal</span>
-				<input id="postal_code" name="postal_code" type="text" pattern="[0-9]{4}" [formControl]="postalCode">
+				<span>Code postal</span><input id="postal_code" name="postal_code" type="text" pattern="[0-9]{4}" [formControl]="postalCode">
 			</label>
 			<label for="town">
-				<span>Ville</span>
-				<input id="town" name="town" type="text" [formControl]="town" pattern="[A-Za-z\-]{3,50}">
+				<span>Ville</span><input id="town" name="town" type="text" [formControl]="town" pattern="[A-Za-z\-]{3,50}">
 			</label>
 			<label for="phone">
-				<span>Téléphone</span>
-				<input id="phone" name="phone" type="tel" pattern="[0-9]{9,10}" [formControl]="phone">
+				<span>Téléphone</span><input id="phone" name="phone" type="tel" pattern="[0-9]{9,10}" [formControl]="phone">
 			</label>
 			<button *ngIf="newCustomer" type="submit" id="newCustomer" (click)="submitCustomer('new')">
 				Ajouter
