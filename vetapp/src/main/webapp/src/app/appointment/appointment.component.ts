@@ -42,6 +42,7 @@ export class AppointmentComponent implements OnInit{
     selectedPatientId : number = null;
 
     updateAppointement : boolean = false;
+    remove: boolean = false;
 
     constructor(private _iterableDiffers: IterableDiffers, private _requestService : RequestService){}
 
@@ -222,26 +223,36 @@ export class AppointmentComponent implements OnInit{
             }
         }
         for (var i = 0; i < nbDays; i++) {
-            this._requestService.findAppointmentsByDate(this.yyyy_mm_dd(date)).subscribe((appointments: Appointment[]) => {
+            this._requestService.findAppointmentsByDate(this.yyyy_mm_dd(date)).subscribe((answer: Appointment[]) => {
+                answer.forEach((appointment: Appointment) => {
+                    appointment.date = new Date(appointment.date);
+                });
+
+                let appointments;
+                if(answer[0].doctorId == 0){
+                    //No appointment found
+                    appointments = [];
+                }else{
+                    appointments = answer;
+                }
+
                 let hf_duplicate = false;
                 for (var i = 0; i < this.days.length; i++) {
-                    if (this.days[i].date.getTime() == date.getTime()) {
+                    if (this.days[i].date.toDateString() === answer[0].date.toDateString()) {
                         hf_duplicate = true;
                     }
                 }
 
-                appointments.forEach((appointment: Appointment) => {
-                    appointment.date = new Date(appointment.date);
-                });
-
                 if (!hf_duplicate) {
-                    this.days.push({date: date, appointments: appointments, isToday: date.toDateString() === (new Date()).toDateString() });
-                    this.days.sort((a:any, b:any) => a.date - b.date);
+                    this.days.push({date: answer[0].date, appointments: appointments, isToday: answer[0].date.toDateString() === (new Date()).toDateString() });
+                    this.days.sort(function(a,b) {
+                        return (a.date.getTime() > b.date.getTime()) ? 1 : ((b.date.getTime() > a.date.getTime()) ? -1 : 0);
+                    });
                 }
-
-                date = new Date(date);
-                date.setDate(date.getDate() + 1);
             });
+
+            date = new Date(date);
+            date.setDate(date.getDate() + 1);
         }
     }
 
@@ -301,6 +312,7 @@ export class AppointmentComponent implements OnInit{
         this.form.customer.disabled = true;
     }
     removeAppointment(){
+        this.remove = true;
         this._requestService.removeAppointment(this.form.date.value, this.form.patient.value).subscribe((appointment: Appointment) => {
             this.update();
             (document.querySelector('.vetCal-popup') as HTMLElement).style.display = "none";
@@ -341,10 +353,14 @@ export class AppointmentComponent implements OnInit{
         data.append("roomId", form.room.value);
         data.append("type", form.type.value); 
         if(this.updateAppointement){
-            this._requestService.modifyAppointment(form.date.value, form.patient.value, data).subscribe((appointment: Appointment) => {
-                this.update();
-                (document.querySelector('.vetCal-popup') as HTMLElement).style.display = "none";
-            });
+            if(this.remove){
+                this.remove = false;
+            }else{
+                this._requestService.modifyAppointment(form.date.value, form.patient.value, data).subscribe((appointment: Appointment) => {
+                    this.update();
+                    (document.querySelector('.vetCal-popup') as HTMLElement).style.display = "none";
+                });
+            }
         }else{
             data.append("patientId", form.patient.value);
             data.append("doctorId", form.doctor.value);

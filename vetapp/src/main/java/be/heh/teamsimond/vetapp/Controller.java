@@ -188,7 +188,20 @@ public class Controller {
                 cal.setTime(start);
                 cal.add(Calendar.DATE, 1);
                 Date end = cal.getTime();
-                return new VetappElements(this.vetappElementRepository.findAppointmentsInInterval(start, end));
+
+                List<IVetappElement> l = this.vetappElementRepository.findAppointmentsInInterval(start, end);
+                if(l.size() == 0){
+                    Map<String, String[]> map = new HashMap<String, String[]>();
+                    map.put("patientId", new String[]{"0"});
+                    map.put("doctorId", new String[]{"0"});
+                    map.put("date", new String[]{strIncompleteName+"T00:00:00Z"});
+                    map.put("roomId", new String[]{"0"});
+                    map.put("type", new String[]{"0"});
+                    IVetappElement e = IVetappElement.class.cast(this.classMap.get("appointment").getMethod("generate", Map.class).invoke(null, map));
+                    l.add(e);
+                }
+
+                return new VetappElements(l);
             } catch (Exception e) {}
         } else if (strClass.equals("appointment") && request.getParameter("patient") != null) {
             try {
