@@ -1,8 +1,7 @@
 main{
   border: solid 2px #0076d6;
-  width: 50%;
-  margin-left: calc(25% - 2px);
-  margin-right: calc(25% - 2px);
+  width: 20%;
+  margin-left: calc(40% - 2px);
   font-size: 1vw;
 }
 
@@ -10,8 +9,9 @@ main{
   width: 90%;
   margin: 5%;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: column wrap;
   justify-content: space-between;
+  align-items: flex-start;
 }
 
 #room>label{
@@ -40,6 +40,11 @@ main{
   color: #4a6b82;
 }
 
+#color{
+  height: 30px;
+  width: 100px;
+}
+
 #room button{
   margin: 0;
   padding: 0;
@@ -49,7 +54,24 @@ main{
   font-size: 1vw;
 }
 
-#room button#remove{
-  background: none;
-  border: none;
+.inputContainer{
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.btnContainer{
+  width: 170px;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-around;
+  align-items: flex-end;
+}
+
+.input{
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
 }

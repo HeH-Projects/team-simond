@@ -1,28 +1,36 @@
 <pm-users></pm-users>
 <main>
     <form id="room">
-        <label for="rooms" [ngClass]="{'has-error': roomMessage}">
-            <span>Room</span>
-            <input type="search" list="rooms" [formControl]="searchField">
-            <datalist id="rooms">
-                <option *ngFor="let room of roomsSearchList | async" value="{{room.name}}">
-            </datalist>
-        </label>
-        <span class="message-block" *ngIf="roomMessage">
-            {{roomMessage}}
-        </span>
-        <label>
-            <span>Couleur</span>
-            <input id="color" type="color">
-        </label>
-        <div *ngIf="newRoom">
-            <button type="submit" id="new" (click)="submit('new')">Ajouter</button>
+        <div class="inputContainer">
+            <div class="input">
+                <label for="rooms" [ngClass]="{'has-error': roomMessage}">
+                    <span>Room</span>
+                    <input type="search" list="rooms" [formControl]="searchField">
+                    <datalist id="rooms">
+                        <option *ngFor="let room of roomsSearchList | async" value="{{room.name}}">
+                    </datalist>
+                </label>
+                <span class="message-block" *ngIf="roomMessage">
+                    {{roomMessage}}
+                </span>
+            </div>
+            <div class="input">
+                <label>
+                    <span>Couleur</span>
+                    <input id="color" type="color">
+                </label>
+            </div>
         </div>
-        <div *ngIf="!newRoom">
-            <button type="submit" id="modify" (click)="submit('modify')">Modifier</button>
-        </div>
-        <div *ngIf="!newRoom">
-            <button type="submit" id="remove" (click)="submit('remove')"><img src="./../../../assets/delete.svg" width="50px"></button>
+        <div class="btnContainer">
+            <div *ngIf="newRoom">
+                <button type="submit" id="new" (click)="submit('new')">Ajouter</button>
+            </div>
+            <div *ngIf="!newRoom">
+                <button type="submit" id="modify" (click)="submit('modify')">Modifier</button>
+            </div>
+            <div *ngIf="!newRoom">
+                <button type="submit" id="remove" (click)="submit('remove')">Supprimer</button>
+            </div>
         </div>
     </form>
 </main>
