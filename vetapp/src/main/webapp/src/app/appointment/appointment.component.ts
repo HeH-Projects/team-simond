@@ -226,6 +226,7 @@ export class AppointmentComponent implements OnInit{
             this._requestService.findAppointmentsByDate(this.yyyy_mm_dd(date)).subscribe((answer: Appointment[]) => {
                 answer.forEach((appointment: Appointment) => {
                     appointment.date = new Date(appointment.date);
+                    appointment.date.setTime(appointment.date.getTime() + (appointment.date.getTimezoneOffset() * 60 * 1000));
                 });
 
                 let appointments;
@@ -287,7 +288,7 @@ export class AppointmentComponent implements OnInit{
     updateAppointment(appointment) {
         this.popup = document.querySelector('.vetCal-popup');
         this.form = document.querySelector('#vetCal-appointment-form');
-        this.popup.style.display = "block";        
+        this.popup.style.display = "block";
         this.updateAppointement = true;
         var f = this.form,
             d = appointment.date,
