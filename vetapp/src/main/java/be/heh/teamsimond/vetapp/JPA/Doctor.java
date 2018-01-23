@@ -79,7 +79,7 @@ public class Doctor implements IVetappElement {
         Doctor e = new Doctor();
         List<String> l = e.update(parameters);
         if (l.contains("name")
-                && l.contains("room_id")
+                && l.contains("roomId")
                 && l.contains("monday")
                 && l.contains("tuesday")
                 && l.contains("wednesday")
@@ -99,9 +99,9 @@ public class Doctor implements IVetappElement {
                     l.add("name");
                 }
             }
-            if (parameters.get("room_id") != null) {
-                this.setRoomId(Integer.parseInt(parameters.get("room_id")[0]));
-                l.add("room_id");
+            if (parameters.get("roomId") != null) {
+                this.setRoomId(Integer.parseInt(parameters.get("roomId")[0]));
+                l.add("roomId");
             }
             Pattern p = Pattern.compile("^[0-9A-F]{6}$");
             if (parameters.get("monday") != null
@@ -209,6 +209,7 @@ class DoctorTimeSlots {
     private String slotToString(int[] slot) {
         return Integer.toString(slot[0]) + "-" + Integer.toString(slot[1] + 1);
     }
+
     public String[] byteToTimeSlot(byte[] bytes) {
         List<String> list = new ArrayList<>();
         int[] slot = new int[2];
@@ -232,7 +233,7 @@ class DoctorTimeSlots {
         }
         return r;
     }
-    public DoctorTimeSlots() {}
+
     public DoctorTimeSlots(byte[] monday, byte[] tuesday, byte[] wednesday, byte[] thursday, byte[] friday, byte[] saturday, byte[] sunday) {
         this.monday = byteToTimeSlot(monday);
         this.tuesday = byteToTimeSlot(tuesday);

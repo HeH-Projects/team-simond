@@ -1,0 +1,30 @@
+<form id="{{newPatient? 'patient' : 'patient_' + currentPatient.id}}">
+    <div>
+        <label>
+            <span>Nom:</span><input name="name" type="text" value="{{newPatient? '' : currentPatient.name}}">
+        </label>
+        <label>
+            <span>Type:</span>
+            <select name="type" (change)="sortBreeds($event)">
+                <option *ngFor="let type of animalTypes" value="{{type.id}}" [selected]="isPatientType(type.id)">{{type.name}}</option>
+            </select>
+        </label>
+        <label>
+            <span>Race:</span>
+            <select name="breed">
+                <option *ngFor="let breed of breeds" value="{{breed.id}}" [selected]="isPatientBreed(breed.id)">{{breed.name}}</option>
+            </select>
+        </label>
+    </div>
+    <div>
+        <button *ngIf="newPatient" type="submit" id="newPatient" (click)="submitPatient('new')">
+            Ajouter un patient
+        </button>
+        <button *ngIf="!newPatient" type="submit" id="modifyPatient{{currentPatient.id}}" (click)="submitPatient('modify')">
+            Modifier
+        </button>
+        <button *ngIf="!newPatient" type="submit" id="removePatient{{currentPatient.id}}" (click)="submitPatient('remove')">
+            Supprimer
+        </button>
+    </div>
+</form>

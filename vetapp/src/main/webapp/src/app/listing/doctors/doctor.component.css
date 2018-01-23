@@ -1,0 +1,148 @@
+main{
+  border: solid 2px #0076d6;
+  width: 50%;
+  margin-left: calc(25% - 2px);
+  margin-right: calc(25% - 2px);
+  font-size: 1vw;
+}
+
+form{
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.fieldset{
+  border: none;
+  width: calc(100% - 4px);
+  margin: 0;
+  padding: 0;
+}
+
+#infos{
+  padding: 5%;
+  width: 90%;
+  margin: 0;
+  font-size: 2vw;
+  color: #4a6b82;
+}
+
+#infos>label{
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+#infos>label:first-of-type{
+  margin-bottom: 25px;
+}
+
+#infos>label>span{
+  width: 20%;
+  text-align: center;
+  border: 2px solid #b3b3b3;
+  border-right: none;
+  padding: 5px;
+}
+
+#infos>label>input{
+  width: calc(80% - 4px);
+  padding: 5px;
+  margin: 0;
+}
+
+#infos>label>select{
+  width: 80%;
+  padding: 5px;
+  margin: 0;
+  font-size: 2vw;
+  color: #4a6b82;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  background: url("/../../../assets/bg_dropdown.svg") no-repeat right center;
+}
+
+#workweek{
+  width: 100%;
+  margin-bottom: 50px;
+  font-size: 1.5vw;
+}
+
+#workweek>.fieldset{
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-around;
+  align-items: center;
+  width: 95%;
+  padding: 0;
+  margin: 25px 2.5%;
+}
+
+#workweek>.fieldset>span{
+  width: 20%;
+  margin: 0;
+  padding: 0;
+}
+#workweek>.fieldset>span::first-letter{
+  text-transform: uppercase;
+}
+
+#workweek>.fieldset>div.working_hours{
+  width: 80%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#workweek>.fieldset>div.working_hours>label{
+    width: 100%;
+}
+
+#workweek>.fieldset>div.working_hours>label>span{
+  display: inline-block;
+  background-color: #f5f5f5;
+  border: 2px solid #dedede;
+  border-radius: 15%;
+  width: 80%;
+  padding: 5px 2%;
+  text-align: center;
+}
+
+#workweek>.fieldset>div.working_hours>label>input:checked ~ span{
+  background-color: #0088d6; 
+  color: white;
+}
+
+.checkbox{
+  display: none;
+}
+
+#actions{
+  display: flex;
+  width: 100%;
+  flex-flow: row nowrap;
+}
+
+#actions>button{
+  margin: 0;
+  padding: 15px;
+  color: #fcfcfc;
+  font-size: 1.5vw;
+  width: 50%;
+}
+
+#actions>button:first-of-type{
+  background-color: #fcdb00;
+  border: none;
+  border-top: solid 2px #0076d6;
+  border-right: solid 2px #0076d6;
+}
+
+#actions>button:last-of-type{
+  background-color: #ff4238;
+  border: none;
+  border-top: solid 2px #0076d6;
+}

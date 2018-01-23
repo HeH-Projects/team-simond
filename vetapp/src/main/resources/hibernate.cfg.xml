@@ -14,6 +14,9 @@
         <mapping class="be.heh.teamsimond.vetapp.JPA.Appointment" />
         <mapping class="be.heh.teamsimond.vetapp.JPA.Patient" />
         <mapping class="be.heh.teamsimond.vetapp.JPA.Room" />
+        <mapping class="be.heh.teamsimond.vetapp.JPA.User" />
+        <mapping class="be.heh.teamsimond.vetapp.JPA.Type" />
+        <mapping class="be.heh.teamsimond.vetapp.JPA.Breed" />
 
         <!-- DB schema will be updated if needed -->
         <!-- <property name="hbm2ddl.auto">update</property> -->

@@ -1,0 +1,87 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+input[type=checkbox] {
+  display: none;
+}
+input[id^=edit-]:not(:checked) ~ form label[for^=edit-]::before {
+  content: "M"
+}
+input[id^=edit-]:checked ~ form label[for^=edit-]::before {
+  content: "C"
+}
+
+
+label span,
+label input,
+label select {
+  line-height: 1.8rem;
+  height: 1.8rem;
+  display: inline-block;
+  border: 1px solid #000;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+label span {
+  width: 120px;
+  padding: 0 .6em;
+  border-right: 0;
+}
+label input,
+label select {
+  font-size: .8em;
+  height: 1.8rem;
+  display: inline-block;
+  width: calc(100% - 120px) !important;
+}
+label + label {
+  padding-top: 1em;
+}
+
+section, #customer {
+  max-width: 600px;
+  margin: auto;
+}
+
+section article {
+	margin-top: 20px;
+}
+
+.button {
+  height: 2em;
+  width: 2em;
+  line-height: 2em;
+  text-align:center;
+  display:block;
+  
+  
+   background: 0;
+   border: 0;
+   font-size: inherit;
+   font-family: inherit;
+   padding: 0;
+   margin: 0;
+}
+#customer .button {
+  display:inline-block;
+}
+form div {
+  display: inline-block;
+}
+#customer > div:first-child {
+  width: calc(100% - 5em);
+}
+form > div:first-child  {
+  width: calc(100% - 3em);
+}
+#customer input[type=text] {
+  width: 100%;
+}
+
+label{
+  display: block !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}

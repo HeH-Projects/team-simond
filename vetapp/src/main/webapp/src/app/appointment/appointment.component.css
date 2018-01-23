@@ -1,0 +1,151 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.vetCal {
+    width: 100%;
+    height: calc(100vh - 72px);
+}
+.vetCal *{
+    box-sizing: initial;
+}
+.vetCal-cal,
+.vetCal-table {
+    display:flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 100%;
+    height: 100%;
+    overflow:hidden;
+}
+.vetCal-sidebar {
+    width: 59px;
+    float: left;
+        height: 100%;
+        overflow: hidden;
+    text-align: center;
+    border-right: 1px solid;
+}
+.vetCal-hours {
+    height: calc(100% - 4rem);
+}
+.vetCal-hours div {
+    font-size:small;
+}
+.vetCal-hours > div > div:not(:first-child) {
+    color:#999;
+}
+.vetCal-cal {
+    float: right;	
+}
+.vetCal-cal {
+    width: calc(100% - 60px);
+}
+.vetCal-cal > div,
+.vetCal-table > div {
+    flex: 1;
+}
+.vetCal-cal > div:not(:last-child),
+.vetCal-table > div:not(:last-child) {
+    border-right: solid 1px;
+}
+.vetCal h3, .vetCal h4 {
+    text-align:center;
+    height: calc(2rem - 1px);
+    line-height: 2rem;
+    border-bottom: 1px solid;
+    overflow:hidden;
+    font-size: 1rem;
+}
+.vetCal-table,
+.vetCal-planning {
+    height: calc(100% - 2rem);
+}
+.vetCal-planning {
+    position: relative;
+}
+.vetCal .vetCal-appointment {
+    width: 100%;
+    background: red;
+    position: absolute;
+    top: 0;
+    padding: 4px 8px 4px 12px;
+    box-sizing:border-box;
+    box-shadow:inset 4px 0 0 rgba(0,0,0,.2);
+}
+.vetCal-appointment {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.vetCal-background {
+    height: calc(25% - 1px);
+    border-bottom: 1px solid #ccc;
+    background:#ddd;
+}
+.vetCal-background:nth-child(2n) {
+    background:#eee;
+}
+.vetCal-background:last-child {
+    border-bottom: 0;
+}
+.vetCal-background-container {
+    box-shadow: inset 0 -1px 0 #bbb;
+}
+.vetCal nav {
+    height: 4rem;
+}
+.vetCal-cal.week .vetCal-appointment {
+    font-size: 0;
+}
+.vetCal .today h3 {
+    background-color: #eee;
+}
+.vetCal-popup {
+    position: absolute;
+    display : none;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    top: 0;
+}
+.vetCal-popup-background{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: rgba(0,0,0,.5);
+}
+.vetCal-popup form {
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    width: fit-content;
+    padding: 50px;
+    background: white;
+    z-index: 1;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.vetCal-popup h3 {
+    text-align: center;
+    margin: 0 0 20px 0;
+}
+.vetCal-popup input, .vetCal-popup select {
+    width: 100%;
+    height: 2em;
+    padding: 0 1em;
+    line-height: 2em;
+    margin-bottom: 1em;
+}
+label{
+  display: block !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}

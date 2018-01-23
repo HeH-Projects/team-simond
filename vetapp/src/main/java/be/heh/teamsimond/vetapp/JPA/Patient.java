@@ -22,7 +22,8 @@ public class Patient implements IVetappElement {
     private int type;
     private int breed;
     @Column(name="has_picture")
-    private boolean hasPic;
+    private boolean hasPic = false;
+    private byte[] picture = null;
 
     public int getId() {
         return id;
@@ -58,17 +59,23 @@ public class Patient implements IVetappElement {
     public void setBreed(int breed) {
         this.breed = breed;
     }
-    public boolean isHasPic() {
+    public boolean hasPic() {
         return hasPic;
     }
-    public void setHasPic(boolean hasPic) {
+    public void hasPic(boolean hasPic) {
         this.hasPic = hasPic;
+    }
+    public byte[] getPicture() {
+        return picture;
+    }
+    public void setPicture(byte[] picture) {
+        this.picture = picture;
     }
 
     public static IVetappElement generate(Map<String, String[]> parameters){
         try {
             Patient e = new Patient();
-            e.setCustomerId(Integer.parseInt(parameters.get("customer_id")[0]));
+            e.setCustomerId(Integer.parseInt(parameters.get("customerId")[0]));
             List<String> l = e.update(parameters);
             if (l.contains("name")
                     && l.contains("type")

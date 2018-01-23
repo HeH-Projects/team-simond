@@ -1,0 +1,54 @@
+<div class="container">
+    <form (ngSubmit)="submit(loginForm)" 
+        novalidate
+        #loginForm="ngForm"
+        class="loginForm">
+        <div class="input">
+            <label for="login">Login : </label>
+            <input type="text" 
+                required 
+                [(ngModel)]=user.login
+                name="login"
+                id="login"
+                #loginVar="ngModel"/>
+        </div>
+        <span *ngIf="(loginVar.touched || loginVar.dirty) && loginVar.errors">
+            <span *ngIf="loginVar.errors.required">
+                Please enter the login.
+            </span>
+        </span>
+        
+        <div class="input">
+            <label for="password">Password : </label>
+            <input type="password" 
+                required
+                [(ngModel)]=user.password
+                name="password"
+                id="password"
+                #passwordVar="ngModel"/>
+        </div>
+        <span *ngIf="(passwordVar.touched || passwordVar.dirty) && passwordVar.errors">
+                <span *ngIf="passwordVar.errors.required">
+                    Please enter the password.
+                </span>
+            </span>
+        <span *ngIf="badLogin">
+            Bad login and password.
+        </span>
+        <input type="submit"
+            [disabled]="!loginForm.valid"
+            value="Se connecter">
+        
+    </form>
+</div>
+<!--<br><br><br>
+
+<button (click)="callDoctor()">callDoctor</button>
+<div *ngIf="doctor" innerHTML="{{doctor.name}}"></div>
+
+<br>Dirty: {{ loginForm.dirty }} 
+<br>Touched: {{ loginForm.touched }}
+<br>Valid: {{ loginForm.valid }}
+<br>Value: {{ loginForm.value | json }}
+<br>Login : {{user.login}}
+<br>Password : {{user.password}}-->

@@ -1,13 +1,49 @@
-<nav class='navbar navbar-default'>
-  <div class='container-fluid'>
-      <a class='navbar-brand'></a>
-      <ul class='nav navbar-nav'>
-          <li><a [routerLink]="['/users/doctors']">Doctors</a></li>
-          <li><a [routerLink]="['/users/clients']">Clients</a></li>
-          <li><a [routerLink]="['/users/rooms']">Rooms</a></li>
-      </ul>
-  </div>
-</nav>
-<div class='container'>
-  listing clients here
-</div>
+<pm-users></pm-users>
+<main>
+	<header>
+		<form id="customer">
+			<label for="name" [ngClass]="{'has-error': customerSearchMessage}">
+				<span>Client</span><input id="name" name="name" type="search" [formControl]="searchField">
+			</label>
+			<ul class="search-result">
+				<li *ngFor="let customer of customersSearchList | async" (click)="updateSearchField(customer.id)">
+					{{customer.name}}
+				</li>
+			</ul>
+			<span class="message-block" *ngIf="customerSearchMessage">
+				{{customerSearchMessage}}
+			</span>
+			<label for="address">
+				<span>Adresse</span><input id="address" name="address" type="text" pattern="[A-Za-z\-]+[,][\s]?[0-9]+" [formControl]="address">
+			</label>
+			<label for="postal_code">
+				<span>Code postal</span><input id="postal_code" name="postal_code" type="text" pattern="[0-9]{4}" [formControl]="postalCode">
+			</label>
+			<label for="town">
+				<span>Ville</span><input id="town" name="town" type="text" [formControl]="town" pattern="[A-Za-z\-]{3,50}">
+			</label>
+			<label for="phone">
+				<span>Téléphone</span><input id="phone" name="phone" type="tel" pattern="[0-9]{9,10}" [formControl]="phone">
+			</label>
+			<button *ngIf="newCustomer" type="submit" id="newCustomer" (click)="submitCustomer('new')">
+				Ajouter
+			</button>
+			<button *ngIf="!newCustomer" type="submit" id="modifyCustomer" (click)="submitCustomer('modify')">
+				Modifier
+			</button>
+			<button *ngIf="!newCustomer" type="submit" id="removeCustomer" (click)="submitCustomer('remove')">
+				Supprimer
+			</button>
+		</form>
+	</header>
+	<section>
+		<ng-container *ngIf="currentPatients">
+			<article *ngFor="let patient of currentPatients">
+				<pm-patient [currentCustomer]="currentCustomer" [currentPatient]="patient" (onModify)="changePatient($event)" (onDelete)="removePatient($event)"></pm-patient>
+			</article>
+		</ng-container>
+		<aside *ngIf="!newCustomer">
+			<pm-patient [currentCustomer]="currentCustomer" [currentPatient]="null" (onCreate)="newPatient($event)"></pm-patient>
+		</aside>
+	</section>
+</main>

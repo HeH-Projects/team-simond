@@ -1,13 +1,47 @@
-<nav class='navbar navbar-default'>
-  <div class='container-fluid'>
-      <a class='navbar-brand'></a>
-      <ul class='nav navbar-nav'>
-          <li><a [routerLink]="['/users/doctors']">Doctors</a></li>
-          <li><a [routerLink]="['/users/clients']">Clients</a></li>
-          <li><a [routerLink]="['/users/rooms']">Rooms</a></li>
-      </ul>
-  </div>
-</nav>
-<div class='container'>
-  listing doctors here
-</div>
+<pm-users></pm-users>
+<main>
+    <form id="doctor">
+        <div class="fieldset" id="infos">
+            <label>
+                <span>Name</span>
+                <input id="name" type="search" list="doctors" [formControl]="searchField">
+                <datalist id="doctors">
+                    <option *ngFor="let doctor of doctorsSearchList | async" value="{{doctor.name}}">
+                </datalist>
+            </label>
+            <label>
+                <span>Room</span>
+                <select id="rooms" form="doctor">
+                    <option *ngFor="let room of rooms" value="{{room.id}}">{{room.name}}</option>
+                </select>
+            </label>
+        </div>
+        <div id="workweek">
+            <div class="fieldset" *ngFor="let day of days" id="{{day}}">
+                <span>{{day}}</span>
+                <div class="working_hours">
+                    <label *ngFor="let hour of range(openingHour, closingHour)">
+                        <input 
+                            id="{{day}}_{{hour}}" 
+                            name="{{day}}_{{hour}}" 
+                            type="checkbox" 
+                            class="checkbox"
+                            [(ngModel)]="timeSlots[day][hour]"/>
+                        <span>{{hour}}</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="fieldset" id="actions">
+            <button *ngIf="newDoctor" type="submit" id="new" (click)="submit('new')">
+                Ajouter
+            </button>
+            <button *ngIf="!newDoctor" type="submit" id="modify" (click)="submit('modify')">
+                Modifier
+            </button>
+            <button *ngIf="!newDoctor" type="submit" id="remove" (click)="submit('remove')">
+                Supprimer
+            </button>
+        </div>
+    </form>
+</main>

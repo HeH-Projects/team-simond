@@ -1,0 +1,77 @@
+main{
+  border: solid 2px #0076d6;
+  width: 20%;
+  margin-left: calc(40% - 2px);
+  font-size: 1vw;
+}
+
+#room{
+  width: 90%;
+  margin: 5%;
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+#room>label{
+  width: 75%;
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+#room>label>span{
+  width: 20%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #b3b3b3;
+  border-right: none;
+  padding: 5px;
+  color: #4a6b82;
+}
+
+#room>label>input{
+  width: 80%;
+  margin: 0;
+  padding: 5px;
+  font-size: 1vw;
+  border: 2px solid #b3b3b3;
+  color: #4a6b82;
+}
+
+#color{
+  height: 30px;
+  width: 100px;
+}
+
+#room button{
+  margin: 0;
+  padding: 0;
+  color: #fcfcfc;
+  background-color: #0088d6;
+  border: 2px solid #b3b3b3;
+  font-size: 1vw;
+}
+
+.inputContainer{
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.btnContainer{
+  width: 170px;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-around;
+  align-items: flex-end;
+}
+
+.input{
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+}

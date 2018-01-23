@@ -11,7 +11,7 @@ branches:
 deploy:
   - provider: heroku
     api_key: 
-      secure: "6fc420b5-9e41-499a-93b1-7d6daf550c17"
+      secure: "2ae3d328-3a72-4e8f-aedb-5bb5739d5bcc"
     app: projet-team-simond
     on:
       branch:
@@ -20,7 +20,7 @@ deploy:
 
   - provider: heroku
     api_key: 
-      secure: "6fc420b5-9e41-499a-93b1-7d6daf550c17"
+      secure: "2ae3d328-3a72-4e8f-aedb-5bb5739d5bcc"
     app: projet-team-simond
     on:
       branch:

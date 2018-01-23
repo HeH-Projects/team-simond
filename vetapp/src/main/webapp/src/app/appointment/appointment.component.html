@@ -1,1 +1,109 @@
-<p> home here </p>
+<div class="vetCal">
+    <div class="vetCal-popup">
+        <div class="vetCal-popup-background" (click)="$event.target.parentNode.style.display='none'"></div>
+        <form id="vetCal-appointment-form"
+            (ngSubmit)="submit()">
+            <h3></h3>
+            <input type="hidden" name="date" value="">
+            <label>
+                Médecin:
+                <select 
+                    name="doctor" 
+                    disabled
+                    [(ngModel)]="form_doctor"
+                    #doctor="ngModel">
+                    <option *ngFor="let doctor of doctors" value="{{doctor.id}}">{{doctor.name}}</option>
+                </select>
+            </label>
+            <label>
+                Client:
+                <input name="customer"
+                       type="search"
+                       [(ngModel)]="form_customer"
+                       #customer="ngModel"
+                       (ngModelChange)="onCustomerChange()">
+                <ul class="search-result">
+                    <li *ngFor="let customer of customersSearchList | async" (click)="updateSearchField(customer.id)">
+                        {{customer.name}}
+                    </li>
+                </ul>
+            </label>
+            <label>
+                Patient:
+                <select 
+                    name="patient"
+                    [(ngModel)]="form_patient"
+                    #patient="ngModel">
+                    <option *ngFor="let patient of currentPatients" value="{{patient.id}}" [selected]="patient.id == selectedPatientId">{{patient.name}}</option>
+                </select>
+            </label>
+            <label>
+                Salle:
+                <select 
+                    name="room"
+                    [(ngModel)]="form_room"
+                    #room="ngModel">
+                    <option *ngFor="let room of rooms" value="{{room.id}}">{{room.name}}</option>
+                </select>
+            </label>
+            <label>
+                Type d'examen:
+                <select 
+                    name="type"
+                    [(ngModel)]="form_exam"
+                    #exam="ngModel">
+                    <option *ngFor="let type of types" value="{{type.id}}">{{type.name}}</option>
+                </select>
+            </label>
+            <input type="submit">
+            <button (click)="removeAppointment()">Supprimer</button>
+        </form>
+    </div>
+    <div class="vetCal-sidebar">
+        <nav>
+            <button (click)="changeView()">{{weekView ? "DayView" : "WeekView"}}</button>
+            <button (click)="changeDate(false)">&lt;</button>
+            <button (click)="today()">O</button>
+            <button (click)="changeDate(true)">&gt;</button>
+        </nav>
+        <div class="vetCal-hours">
+            <div *ngFor="let n of range(closingHour - openingHour)"
+            [style.height.%]="100 / (closingHour - openingHour)"
+            class="vetCal-background-container">
+                <div class="vetCal-background" *ngFor="let i of range(4)">
+                    {{ ("0" + (n + openingHour)).slice(-2) }} : {{ ("0" + 15 * i).slice(-2) }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="vetCal-cal {{weekView ? 'week' : 'day'}}">
+        <div *ngFor="let day of days" class="{{day.isToday ? 'today' : ''}}">
+            <h3>{{dateToTitle(day.date)}}</h3>
+            <div class="vetCal-table">
+                <div *ngFor="let doctor of doctors">
+                    <h4>{{doctor.name}}</h4>
+                    <div class="vetCal-planning">
+                        <div class="vetCal-appointment"
+                            *ngFor="let appointment of day?.appointments | doctorId:doctor.id"
+                            (click)="updateAppointment(appointment)"
+							[style.background-color]="roomColors[appointment.roomId - 1]"
+							[style.box-shadow]="'inset 4px 0 0 ' + colorLuminance(roomColors[appointment.roomId - 1], -0.5)"
+							[style.color]="roomColors[appointment.roomId - 1] + colorLuminance(roomColors[appointment.roomId - 1], -0.5)"
+							[style.height.%]="100 * appointmentDurations[(appointment.type-1)] / (closingHour - openingHour)"
+							[style.top.%]="100 * ((appointment.date.getHours() + (appointment.date.getMinutes() / 60)) - openingHour) / (closingHour - openingHour)">
+                            {{getPatientName(appointment.patientId)}}<br>{{getRoomName(appointment.roomId)}}
+                        </div>
+                        <div *ngFor="let n of range(closingHour - openingHour)"
+                            [style.height]="(100 / (closingHour - openingHour))+'%'"
+                            class="vetCal-background-container">
+                            <ng-container *ngIf="inSlot(doctor, day, n + openingHour)">
+                                <div class="vetCal-background" *ngFor="let i of range(4)"
+                                    (click)="createAppointment(doctor, day, n + openingHour, i)"></div>
+                            </ng-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
